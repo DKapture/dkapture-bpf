@@ -102,7 +102,7 @@ struct
 	__uint(type, BPF_MAP_TYPE_HASH); /**< 哈希表类型映射 */
 	__type(key, u32);				 /**< 键类型：规则ID */
 	__type(value, struct Rule);		 /**< 值类型：访问控制规则 */
-	__uint(max_entries, 1000);		 /**< 最大条目数 */
+	__uint(max_entries, 400000);		 /**< 最大条目数 */
 } filter SEC(".maps");
 
 /**
