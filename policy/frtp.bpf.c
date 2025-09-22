@@ -86,9 +86,10 @@ struct Rule
  */
 struct BpfData
 {
-	Action act;		/**< 违规的操作类型 */
-	pid_t pid;		/**< 违规进程的PID */
-	char process[]; /**< 变长字段，包含进程路径和目标文件信息 */
+	Action act; /**< 违规的操作类型 */
+	pid_t pid;	/**< 违规进程的PID */
+	struct Target target;
+	char process[]; /**< 变长字段，包含进程路径,可能包含目标文件名*/
 };
 
 /**
@@ -102,7 +103,7 @@ struct
 	__uint(type, BPF_MAP_TYPE_HASH); /**< 哈希表类型映射 */
 	__type(key, u32);				 /**< 键类型：规则ID */
 	__type(value, struct Rule);		 /**< 值类型：访问控制规则 */
-	__uint(max_entries, 400000);		 /**< 最大条目数 */
+	__uint(max_entries, 400000);	 /**< 最大条目数 */
 } filter SEC(".maps");
 
 /**
@@ -140,12 +141,14 @@ struct
  * @param pid 违规进程的PID
  * @param process 违规进程的路径
  * @param target 被访问的目标文件信息
+ * @param fname 父目录匹配时需要传入文件名
  * @param act 违规的操作类型
  */
 static void audit_log(
 	pid_t pid,
 	const char *process,
 	const struct Target *target,
+	const char *fname,
 	Action act
 )
 {
@@ -162,8 +165,9 @@ static void audit_log(
 
 	log->pid = pid;
 	log->act = act & 0XFF;
-	log_bsz = 4096 - sizeof(log);
-	log_sz = sizeof(log);
+	log->target = *target;
+	log_bsz = PAGE_SIZE - sizeof(*log);
+	log_sz = sizeof(*log);
 
 	ret = bpf_snprintf(log->process, log_bsz / 2, "%s", (u64 *)&process, 8);
 	if (ret < 0)
@@ -178,18 +182,8 @@ static void audit_log(
 	}
 
 	log_sz += ret;
-	u64 data[] = {
-		MAJOR(target->dev),
-		MINOR(target->dev),
-		target->ino,
-	};
-	ret = bpf_snprintf(
-		log->process + ret,
-		log_bsz / 2,
-		"%u,%u %lu",
-		data,
-		sizeof(data)
-	);
+
+	ret = bpf_snprintf(log->process + ret, log_bsz / 2, "%s", (u64 *)&fname, 8);
 	if (ret < 0)
 	{
 		bpf_printk("error: bpf_snprintf: %ld", ret);
@@ -330,9 +324,11 @@ rules_filter(const char *proc_path, const struct Target *target, int act)
  *
  * @param target 目标文件信息
  * @param mode 访问模式
+ * @param fname 当检查父目录是否匹配时需要传入文件名
  * @return 0表示允许访问，-EACCES表示拒绝访问
  */
-static int _permission_check(const struct Target *target, fmode_t mode)
+static int
+_permission_check(const struct Target *target, fmode_t mode, const char *fname)
 {
 	pid_t pid;
 	char *proc_path = NULL;
@@ -346,7 +342,7 @@ static int _permission_check(const struct Target *target, fmode_t mode)
 	{
 		if (proc_path)
 		{
-			audit_log(pid, proc_path, target, mode);
+			audit_log(pid, proc_path, target, fname, mode);
 		}
 		else
 		{
@@ -358,7 +354,7 @@ static int _permission_check(const struct Target *target, fmode_t mode)
 			}
 			else
 			{
-				audit_log(pid, comm, target, mode);
+				audit_log(pid, comm, target, fname, mode);
 			}
 		}
 
@@ -393,14 +389,20 @@ static int permission_check(struct dentry *dentry, fmode_t mode)
 		.ino = dentry->d_inode->i_ino,
 		.dev = dentry->d_inode->i_sb->s_dev,
 	};
-	int ret = _permission_check(&target, mode);
+	int ret = _permission_check(&target, mode, "");
+	if (ret)
+	{
+		return ret;
+	}
+	
+	// ret = bpf_probe_read_kernel_str(fname, sizeof(fname), dentry->d_name.name);
 	if (ret)
 	{
 		return ret;
 	}
 	target.ino = dentry->d_parent->d_inode->i_ino;
 	target.dev = dentry->d_parent->d_inode->i_sb->s_dev;
-	return _permission_check(&target, mode);
+	return _permission_check(&target, mode, (const char *)dentry->d_name.name);
 }
 
 /**
