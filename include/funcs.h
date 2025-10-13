@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 UnionTech Software Technology Co., Ltd
+//
+// SPDX-License-Identifier: GPL-2.0-only
+
 #ifndef __BPF_KFUNCS__
 #define __BPF_KFUNCS__
 #include "vmlinux.h"

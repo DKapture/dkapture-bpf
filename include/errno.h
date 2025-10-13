@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 UnionTech Software Technology Co., Ltd
+//
+// SPDX-License-Identifier: GPL-2.0-only
+
 #ifndef _KERN_ERRNO_H
 #define _KERN_ERRNO_H
 

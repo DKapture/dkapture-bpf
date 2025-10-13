@@ -1,9 +1,7 @@
-// SPDX-License-Identifier: GPL-2.0
-/* Copyright (c) 2021 Google LLC.
- *
- * Based on spinlock_ob from BCC by Jiri Olsa and others
- * 2021-10-26   Barret Rhoden   Created this.
- */
+// SPDX-FileCopyrightText: 2025 UnionTech Software Technology Co., Ltd
+//
+// SPDX-License-Identifier: GPL-2.0-only
+
 #include "vmlinux.h"
 #include <bpf/bpf_core_read.h>
 #include <bpf/bpf_helpers.h>

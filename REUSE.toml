@@ -1,0 +1,13 @@
+version = 1
+SPDX-PackageName = "libdkapture"
+SPDX-PackageSupplier = "UnionTech Software Technology Co., Ltd"
+SPDX-PackageDownloadLocation = "https://github.com/DKapture/libdkapture"
+
+[[annotations]]
+path = [
+	"README.md",
+	".gitignore"
+]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "UnionTech Software Technology Co., Ltd"
+SPDX-License-Identifier = "LGPL-2.1-only"

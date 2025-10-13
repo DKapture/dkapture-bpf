@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 UnionTech Software Technology Co., Ltd
+//
+// SPDX-License-Identifier: GPL-2.0-only
+
 /**
  * 通过使用 trace point
  * 在sched_switch函数的入口处放置钩子，实现对该系统调用的跟踪

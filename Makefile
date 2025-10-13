@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 UnionTech Software Technology Co., Ltd
+#
+# SPDX-License-Identifier: LGPL-2.1-only
+
 BUILD_DIR = build
 TARGETs = include observe filter policy
 SUBTARGETs = $(foreach i,$(TARGETs),$(i)/%)

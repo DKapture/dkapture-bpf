@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 UnionTech Software Technology Co., Ltd
+//
+// SPDX-License-Identifier: GPL-2.0-only
+
 /**
  * @file frtp.bpf.c
  * @brief 文件系统实时保护(File Real-Time Protection) eBPF内核态程序

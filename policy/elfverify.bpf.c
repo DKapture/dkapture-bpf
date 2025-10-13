@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 UnionTech Software Technology Co., Ltd
+//
+// SPDX-License-Identifier: GPL-2.0-only
+
 /**
  * @file elfverify.bpf.c
  * @brief ELF可执行文件验证eBPF内核态程序

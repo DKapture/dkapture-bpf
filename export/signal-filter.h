@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 UnionTech Software Technology Co., Ltd
+//
+// SPDX-License-Identifier: LGPL-2.1-only
+
 /**
  * @file signal-filter.h
  * @brief 信号过滤器头文件，定义信号监控和过滤相关的常量和数据结构

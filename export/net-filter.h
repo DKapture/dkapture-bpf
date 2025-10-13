@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 UnionTech Software Technology Co., Ltd
+//
+// SPDX-License-Identifier: LGPL-2.1-only
+
 /**
  * @file net-filter.h
  * @brief 网络过滤器头文件，定义网络监控和过滤相关的数据结构和常量
