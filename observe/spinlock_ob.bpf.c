@@ -7,11 +7,10 @@
 #include <bpf/bpf_helpers.h>
 #include <bpf/bpf_tracing.h>
 #include "spinlock_ob.h"
-// #include "bits.bpf.h"
 
-const volatile pid_t targ_tgid = 0;
-const volatile pid_t targ_pid = 0;
-void *const volatile targ_lock = NULL;
+const volatile pid_t target_tgid = 0;
+const volatile pid_t target_pid = 0;
+void *const volatile target_lock = NULL;
 const volatile int per_thread = 0;
 
 struct
@@ -20,22 +19,20 @@ struct
 	__uint(max_entries, MAX_ENTRIES);
 	__uint(key_size, sizeof(u32));
 	__uint(value_size, PERF_MAX_STACK_DEPTH * sizeof(u64));
-} stack_map SEC(".maps");
+} stacks SEC(".maps");
 
-/*
- * Uniquely identifies a task grabbing a particular lock; a task can only hold
- * the same lock once (non-recursive mutexes).
- */
 struct task_lock
 {
-	u64 task_id;
+	u32 tgid;
+	u32 pid;
 	u64 lock_ptr;
 };
 
-struct lockholder_info
+struct lockholder
 {
 	s32 stack_id;
-	u64 task_id;
+	u32 tgid;
+	u32 pid;
 	u64 try_at;
 	u64 acq_at;
 	u64 rel_at;
@@ -47,16 +44,9 @@ struct
 	__uint(type, BPF_MAP_TYPE_HASH);
 	__uint(max_entries, MAX_ENTRIES);
 	__type(key, struct task_lock);
-	__type(value, struct lockholder_info);
-} lockholder_map SEC(".maps");
+	__type(value, struct lockholder);
+} lockholders SEC(".maps");
 
-/*
- * Keyed by stack_id.
- *
- * Multiple call sites may have the same underlying lock, but we only know the
- * stats for a particular stack frame.  Multiple tasks may have the same
- * stackframe.
- */
 struct
 {
 	__uint(type, BPF_MAP_TYPE_HASH);
@@ -73,102 +63,95 @@ struct
 	__type(value, void *);
 } locks SEC(".maps");
 
-static bool tracing_task(u64 task_id)
+static bool tracing_task(u64 pid_tgid)
 {
-	u32 tgid = task_id >> 32;
-	u32 pid = task_id;
+	u32 tgid = pid_tgid >> 32;
+	u32 pid = pid_tgid;
 
-	if (targ_tgid && targ_tgid != tgid)
+	if (target_tgid && target_tgid != tgid)
 	{
 		return false;
 	}
-	if (targ_pid && targ_pid != pid)
+	if (target_pid && target_pid != pid)
 	{
 		return false;
 	}
 	return true;
 }
 
-static void lock_contended(void *ctx, void *lock)
+static void spinlock_contended(void *ctx, void *lock)
 {
-	u64 task_id;
-	struct lockholder_info li[1] = {0};
+	u64 pid_tgid;
+	struct lockholder li[1] = {0};
 	struct task_lock tl = {};
 
-	if (targ_lock && targ_lock != lock)
+	if (target_lock && target_lock != lock)
 	{
 		return;
 	}
-	task_id = bpf_get_current_pid_tgid();
-	if (!tracing_task(task_id))
+	pid_tgid = bpf_get_current_pid_tgid();
+	if (!tracing_task(pid_tgid))
 	{
 		return;
 	}
 
-	li->task_id = task_id;
+	li->tgid = pid_tgid >> 32;
+	li->pid = pid_tgid;
 	li->lock_ptr = (u64)lock;
-	/*
-	 * Skip 4 frames, e.g.:
-	 *       __this_module+0x34ef
-	 *       __this_module+0x34ef
-	 *       __this_module+0x8c44
-	 *             mutex_lock+0x5
-	 *
-	 * Note: if you make major changes to this bpf program, double check
-	 * that you aren't skipping too many frames.
-	 */
-	li->stack_id = bpf_get_stackid(ctx, &stack_map, 4 | BPF_F_FAST_STACK_CMP);
+	li->stack_id = bpf_get_stackid(ctx, &stacks, 4 | BPF_F_FAST_STACK_CMP);
 
-	/* Legit failures include EEXIST */
 	if (li->stack_id < 0)
 	{
 		return;
 	}
 	li->try_at = bpf_ktime_get_ns();
 
-	tl.task_id = task_id;
+	tl.tgid = pid_tgid >> 32;
+	tl.pid = pid_tgid;
 	tl.lock_ptr = (u64)lock;
-	bpf_map_update_elem(&lockholder_map, &tl, li, BPF_ANY);
+	bpf_map_update_elem(&lockholders, &tl, li, BPF_ANY);
 }
 
-static void lock_aborted(void *lock)
+static void spinlock_aborted(void *lock)
 {
-	u64 task_id;
+	u64 pid_tgid;
 	struct task_lock tl = {};
 
-	if (targ_lock && targ_lock != lock)
+	if (target_lock && target_lock != lock)
 	{
 		return;
 	}
-	task_id = bpf_get_current_pid_tgid();
-	if (!tracing_task(task_id))
+	pid_tgid = bpf_get_current_pid_tgid();
+	if (!tracing_task(pid_tgid))
 	{
 		return;
 	}
-	tl.task_id = task_id;
+	tl.tgid = pid_tgid >> 32;
+	tl.pid = pid_tgid;
 	tl.lock_ptr = (u64)lock;
-	bpf_map_delete_elem(&lockholder_map, &tl);
+	bpf_map_delete_elem(&lockholders, &tl);
 }
 
-static void lock_acquired(void *lock)
+static void spinlock_acquired(void *lock)
 {
-	u64 task_id;
-	struct lockholder_info *li;
+	u64 pid_tgid;
+	struct lockholder *li;
 	struct task_lock tl = {};
 
-	if (targ_lock && targ_lock != lock)
+	if (target_lock && target_lock != lock)
 	{
 		return;
 	}
-	task_id = bpf_get_current_pid_tgid();
-	if (!tracing_task(task_id))
+	pid_tgid = bpf_get_current_pid_tgid();
+	if (!tracing_task(pid_tgid))
 	{
 		return;
 	}
 
-	tl.task_id = task_id;
+	tl.tgid = pid_tgid >> 32;
+	tl.pid = pid_tgid;
 	tl.lock_ptr = (u64)lock;
-	li = bpf_map_lookup_elem(&lockholder_map, &tl);
+	li = bpf_map_lookup_elem(&lockholders, &tl);
 	if (!li)
 	{
 		return;
@@ -177,7 +160,7 @@ static void lock_acquired(void *lock)
 	li->acq_at = bpf_ktime_get_ns();
 }
 
-static void account(struct lockholder_info *li)
+static void account(struct lockholder *li)
 {
 	struct lock_stat *ls;
 	u64 delta;
@@ -185,18 +168,9 @@ static void account(struct lockholder_info *li)
 
 	if (per_thread)
 	{
-		key = li->task_id;
+		key = li->pid;
 	}
 
-	/*
-	 * Multiple threads may have the same stack_id.  Even though we are
-	 * holding the lock, dynamically allocated mutexes can have the same
-	 * callgraph but represent different locks.  Also, a rwsem can be held
-	 * by multiple readers at the same time.  They will be accounted as
-	 * the same lock, which is what we want, but we need to use atomics to
-	 * avoid corruption, especially for the total_time variables.
-	 * But it should be ok for per-thread since it's not racy anymore.
-	 */
 	ls = bpf_map_lookup_elem(&stat_map, &key);
 	if (!ls)
 	{
@@ -221,12 +195,8 @@ static void account(struct lockholder_info *li)
 	if (delta > READ_ONCE(ls->acq_max_time))
 	{
 		WRITE_ONCE(ls->acq_max_time, delta);
-		WRITE_ONCE(ls->acq_max_id, li->task_id);
+		WRITE_ONCE(ls->acq_max_id, (li->tgid << 32) | li->pid);
 		WRITE_ONCE(ls->acq_max_lock_ptr, li->lock_ptr);
-		/*
-		 * Potentially racy, if multiple threads think they are the max,
-		 * so you may get a clobbered write.
-		 */
 		if (!per_thread)
 		{
 			bpf_get_current_comm(ls->acq_max_comm, TASK_COMM_LEN);
@@ -239,7 +209,7 @@ static void account(struct lockholder_info *li)
 	if (delta > READ_ONCE(ls->hld_max_time))
 	{
 		WRITE_ONCE(ls->hld_max_time, delta);
-		WRITE_ONCE(ls->hld_max_id, li->task_id);
+		WRITE_ONCE(ls->hld_max_id, (li->tgid << 32) | li->pid);
 		WRITE_ONCE(ls->hld_max_lock_ptr, li->lock_ptr);
 		if (!per_thread)
 		{
@@ -248,24 +218,25 @@ static void account(struct lockholder_info *li)
 	}
 }
 
-static void lock_released(void *lock)
+static void spinlock_released(void *lock)
 {
-	u64 task_id;
-	struct lockholder_info *li;
+	u64 pid_tgid;
+	struct lockholder *li;
 	struct task_lock tl = {};
 
-	if (targ_lock && targ_lock != lock)
+	if (target_lock && target_lock != lock)
 	{
 		return;
 	}
-	task_id = bpf_get_current_pid_tgid();
-	if (!tracing_task(task_id))
+	pid_tgid = bpf_get_current_pid_tgid();
+	if (!tracing_task(pid_tgid))
 	{
 		return;
 	}
-	tl.task_id = task_id;
+	tl.tgid = pid_tgid >> 32;
+	tl.pid = pid_tgid;
 	tl.lock_ptr = (u64)lock;
-	li = bpf_map_lookup_elem(&lockholder_map, &tl);
+	li = bpf_map_lookup_elem(&lockholders, &tl);
 	if (!li)
 	{
 		return;
@@ -273,47 +244,45 @@ static void lock_released(void *lock)
 
 	li->rel_at = bpf_ktime_get_ns();
 	account(li);
-
-	// bpf_map_delete_elem(&lockholder_map, &tl);
 }
 
 SEC("fentry/_raw_spin_lock")
-int BPF_PROG(_raw_spin_lock, raw_spinlock_t *lock)
+int BPF_PROG(fentry_raw_spin_lock, raw_spinlock_t *lock)
 {
 	bpf_printk("_raw_spin_lock enter\n");
 
-	lock_contended(ctx, lock);
+	spinlock_contended(ctx, lock);
 	return 0;
 }
 
 SEC("fexit/_raw_spin_lock")
-int BPF_PROG(_raw_spin_lock_exit, raw_spinlock_t *lock, long ret)
+int BPF_PROG(fexit_raw_spin_lock, raw_spinlock_t *lock, long ret)
 {
 	bpf_printk("_raw_spin_lock exit\n");
-	lock_acquired(lock);
+	spinlock_acquired(lock);
 	return 0;
 }
 
 SEC("fentry/_raw_spin_unlock")
-int BPF_PROG(_raw_spin_unlock, raw_spinlock_t *lock)
+int BPF_PROG(fentry_raw_spin_unlock, raw_spinlock_t *lock)
 {
 	bpf_printk("_raw_spin_unlock enter\n");
-	lock_released(lock);
+	spinlock_released(lock);
 	return 0;
 }
 
 SEC("kprobe/_raw_spin_lock")
-int BPF_KPROBE(kprobe__raw_spin_lock, raw_spinlock_t *lock)
+int BPF_KPROBE(kprobe_raw_spin_lock, raw_spinlock_t *lock)
 {
 	u32 tid = (u32)bpf_get_current_pid_tgid();
 
 	bpf_map_update_elem(&locks, &tid, &lock, BPF_ANY);
-	lock_contended(ctx, lock);
+	spinlock_contended(ctx, lock);
 	return 0;
 }
 
 SEC("kretprobe/_raw_spin_lock")
-int BPF_KRETPROBE(kprobe__raw_spin_lock_exit, long ret)
+int BPF_KRETPROBE(kretprobe_raw_spin_lock, long ret)
 {
 	u32 tid = (u32)bpf_get_current_pid_tgid();
 	void **lock;
@@ -325,14 +294,14 @@ int BPF_KRETPROBE(kprobe__raw_spin_lock_exit, long ret)
 	}
 
 	bpf_map_delete_elem(&locks, &tid);
-	lock_acquired(*lock);
+	spinlock_acquired(*lock);
 	return 0;
 }
 
 SEC("kprobe/_raw_spin_unlock")
-int BPF_KPROBE(kprobe__raw_spin_unlock, raw_spinlock_t *lock)
+int BPF_KPROBE(kprobe_raw_spin_unlock, raw_spinlock_t *lock)
 {
-	lock_released(lock);
+	spinlock_released(lock);
 	return 0;
 }
 
