@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 UnionTech Software Technology Co., Ltd
 //
-// SPDX-License-Identifier: LGPL-2.1-only
+// SPDX-License-Identifier: LGPL-2.1
 #if !defined(_FCNTL_DEFS_H_) && !defined(O_ACCMODE)
 #define _FCNTL_DEFS_H_
 

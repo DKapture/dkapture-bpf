@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 UnionTech Software Technology Co., Ltd
 //
-// SPDX-License-Identifier: GPL-2.0-only
+// SPDX-License-Identifier: GPL-2.0
 
 /**
  * system call statistic

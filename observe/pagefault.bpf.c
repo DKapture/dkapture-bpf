@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 UnionTech Software Technology Co., Ltd
 //
-// SPDX-License-Identifier: GPL-2.0-only
+// SPDX-License-Identifier: GPL-2.0
 
 #include <vmlinux.h>
 #include <bpf/bpf_helpers.h>

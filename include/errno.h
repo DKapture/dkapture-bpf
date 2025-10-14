@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-2.0-only
+// SPDX-License-Identifier: GPL-2.0
 
 #ifndef _ERRNO_H_
 #define _ERRNO_H_

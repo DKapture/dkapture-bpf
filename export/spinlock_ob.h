@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 UnionTech Software Technology Co., Ltd
 //
-// SPDX-License-Identifier: LGPL-2.1-only
+// SPDX-License-Identifier: LGPL-2.1
 
 #ifndef __spinlock_ob_H
 #define __spinlock_ob_H

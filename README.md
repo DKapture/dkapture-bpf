@@ -1,6 +1,15 @@
 # DKapture-bpf
 
-DKapture-bpf是[libdkapture](https://github.com/DKapture/libdkapture)的一个子仓库，用于单独存放和管理BPF程序。。
+DKapture-bpf是[libdkapture](https://github.com/DKapture/libdkapture)的一个子仓库，用于单独存放和管理BPF程序。
+
+## License
+
+本项目采用多重许可证（Multiple Licenses）策略，不同部分使用不同的开源许可证：
+
+- **主体源代码**（如 `.bpf.c` 等实现文件）采用 **GNU 通用公共许可证第二版（GPL-2.0）**，详见 [`LICENSE-GPL-2.0`](LICENSE-GPL-2.0)。
+- **部分导出的头文件**（如 `export/` 目录下的公共接口头文件）采用 **GNU 宽通用公共许可证第二版（LGPL-2.1）**，详见 [`LICENSE-LGPL-2.1`](LICENSE-LGPL-2.1)。
+
+每个源文件的开头均通过 `SPDX-License-Identifier` 明确标注了其适用的具体许可证。请根据你所使用的文件类型遵守相应的许可条款。
 
 # BPF程序功能
 
