@@ -11,17 +11,6 @@ BPF_TARGET_ARCH := $(shell uname -m)
 ifeq ($(BPF_TARGET_ARCH), loongarch64)
 	BPF_TARGET_ARCH := loongarch
 endif
-ifeq ($(BPF_TARGET_ARCH), loongarch)
-	filter-out-multi = $(strip \
-		$(foreach word,$(1), \
-			$(if $(strip $(foreach substr,$(2),$(findstring $(substr),$(word)))),, \
-				$(word) \
-			) \
-		) \
-	)
-	BLACKLIST := rm-forbid signal-filter
-	TARGETs := $(call filter-out-multi, $(TARGETs), $(BLACKLIST))
-endif
 CLANG_FLAGS = -g -MMD -Wall -O2 \
 			-I$(PROJ_ROOT)/include \
 			-I$(PROJ_ROOT)/export/ \
