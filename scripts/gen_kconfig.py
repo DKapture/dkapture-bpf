@@ -17,19 +17,29 @@ import sys
 
 def main():
     # Parse command line arguments
-    if len(sys.argv) > 1:
-        OUTPUT_FILE = sys.argv[1]
-        output_to_stdout = False
-    else:
+    if len(sys.argv) == 1:
+        CONFIG_SOURCE = "/proc/config.gz"
         OUTPUT_FILE = None
         output_to_stdout = True
-    
-    CONFIG_SOURCE = "/proc/config.gz"
-    
+    elif len(sys.argv) == 2:
+        # Only output file specified → use default config source
+        CONFIG_SOURCE = "/proc/config.gz"
+        OUTPUT_FILE = sys.argv[1]
+        output_to_stdout = False
+    elif len(sys.argv) == 3:
+        # Both config source and output file specified
+        CONFIG_SOURCE = sys.argv[1]
+        OUTPUT_FILE = sys.argv[2]
+        output_to_stdout = False
+    else:
+        print(f"Usage: {sys.argv[0]} [CONFIG_FILE] [OUTPUT_FILE]", file=sys.stderr)
+        print(f"       CONFIG_FILE defaults to /proc/config.gz", file=sys.stderr)
+        sys.exit(1)
+
     if output_to_stdout:
         print(f"Generating kconfig.h from {CONFIG_SOURCE} to stdout...", file=sys.stderr)
     else:
-        print(f"Generating kconfig.h from {CONFIG_SOURCE} to {OUTPUT_FILE}...")
+        print(f"Generating kconfig.h from {CONFIG_SOURCE} to {OUTPUT_FILE}...", file=sys.stderr)
     
     # Check if config.gz exists
     if not os.path.exists(CONFIG_SOURCE):
