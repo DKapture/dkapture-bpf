@@ -5,6 +5,7 @@
 PROJ_ROOT ?= ..
 MODULE := $(notdir $(CURDIR))
 BUILD_DIR = $(PROJ_ROOT)/build/$(MODULE)
+VMLINUX ?= /sys/kernel/btf/vmlinux
 
 .PHONY: all clean distclean
 .SECONDARY:
@@ -15,7 +16,7 @@ all: $(BUILD_DIR)/vmlinux.h $(BUILD_DIR)/kconfig.h
 $(BUILD_DIR):
 	@mkdir -p $@
 
-$(BUILD_DIR)/vmlinux.h: /sys/kernel/btf/vmlinux | $(BUILD_DIR)
+$(BUILD_DIR)/vmlinux.h: $(VMLINUX) | $(BUILD_DIR)
 	bpftool btf dump file $< format c > $@
 
 $(BUILD_DIR)/kconfig.h: /proc/config.gz | $(BUILD_DIR)
