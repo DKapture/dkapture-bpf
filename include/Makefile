@@ -21,7 +21,7 @@ $(BUILD_DIR)/vmlinux.h: $(VMLINUX) | $(BUILD_DIR)
 	bpftool btf dump file $< format c > $@
 
 $(BUILD_DIR)/kconfig.h: $(KCONFIG_GZ) | $(BUILD_DIR)
-	python3 $(PROJ_ROOT)/scripts/gen_kconfig.py $@ $<
+	python3 $(PROJ_ROOT)/scripts/gen_kconfig.py $< $@
 
 clean:
 

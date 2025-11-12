@@ -11,12 +11,13 @@ BPF_TARGET_ARCH := $(shell uname -m)
 ifeq ($(BPF_TARGET_ARCH), loongarch64)
 	BPF_TARGET_ARCH := loongarch
 endif
+KHEADERS_DIR ?= /lib/modules/$(shell uname -r)/build/include
 CLANG_FLAGS = -g -MMD -Wall -O2 \
 			-I$(PROJ_ROOT)/include \
 			-I$(PROJ_ROOT)/export/ \
 			-I$(PROJ_ROOT)/build/include \
 			-I/usr/include/$(shell uname -m)-linux-gnu/ \
-			-I/lib/modules/$(shell uname -r)/build/include
+			-I$(KHEADERS_DIR)
 
 .PHONY: all clean
 # 注明不要删除的中间文件
