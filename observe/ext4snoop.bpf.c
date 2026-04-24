@@ -1534,7 +1534,7 @@ int tp_ext4_da_write_pages_extent(struct tp_ext4_da_write_pages_extent_t *ctx)
 
 // Implementation for tp_ext4_discard_blocks
 
-SEC("racepoint/ext4/discard_blocks")
+SEC("tracepoint/ext4/discard_blocks")
 int tp_ext4_discard_blocks(struct tp_ext4_discard_blocks_t *ctx)
 {
 	struct ext4_discard_blocks_t event = {};
@@ -1554,7 +1554,7 @@ int tp_ext4_discard_blocks(struct tp_ext4_discard_blocks_t *ctx)
 
 // Implementation for tp_ext4_discard_preallocations
 
-SEC("racepoint/ext4/discard_preallocations")
+SEC("tracepoint/ext4/discard_preallocations")
 int tp_ext4_discard_preallocations(struct tp_ext4_discard_preallocations_t *ctx)
 {
 	struct ext4_discard_preallocations_t event = {};
@@ -1575,7 +1575,7 @@ int tp_ext4_discard_preallocations(struct tp_ext4_discard_preallocations_t *ctx)
 
 // Implementation for tp_ext4_drop_inode
 
-SEC("racepoint/ext4/drop_inode")
+SEC("tracepoint/ext4/drop_inode")
 int tp_ext4_drop_inode(struct tp_ext4_drop_inode_t *ctx)
 {
 	struct ext4_drop_inode_t event = {};
@@ -1595,7 +1595,7 @@ int tp_ext4_drop_inode(struct tp_ext4_drop_inode_t *ctx)
 
 // Implementation for tp_ext4_error
 
-SEC("racepoint/ext4/error")
+SEC("tracepoint/ext4/error")
 int tp_ext4_error(struct tp_ext4_error_t *ctx)
 {
 	struct ext4_error_t event = {};
@@ -1615,7 +1615,7 @@ int tp_ext4_error(struct tp_ext4_error_t *ctx)
 
 // Implementation for tp_ext4_es_cache_extent
 
-SEC("racepoint/ext4/es_cache_extent")
+SEC("tracepoint/ext4/es_cache_extent")
 int tp_ext4_es_cache_extent(struct tp_ext4_es_cache_extent_t *ctx)
 {
 	struct ext4_es_cache_extent_t event = {};
@@ -1638,7 +1638,7 @@ int tp_ext4_es_cache_extent(struct tp_ext4_es_cache_extent_t *ctx)
 
 // Implementation for tp_ext4_es_find_extent_range_enter
 
-SEC("racepoint/ext4/es_find_extent_range_enter")
+SEC("tracepoint/ext4/es_find_extent_range_enter")
 int tp_ext4_es_find_extent_range_enter(
 	struct tp_ext4_es_find_extent_range_enter_t *ctx
 )
@@ -1660,7 +1660,7 @@ int tp_ext4_es_find_extent_range_enter(
 
 // Implementation for tp_ext4_es_find_extent_range_exit
 
-SEC("racepoint/ext4/es_find_extent_range_exit")
+SEC("tracepoint/ext4/es_find_extent_range_exit")
 int tp_ext4_es_find_extent_range_exit(
 	struct tp_ext4_es_find_extent_range_exit_t *ctx
 )
@@ -1685,7 +1685,7 @@ int tp_ext4_es_find_extent_range_exit(
 
 // Implementation for tp_ext4_es_insert_delayed_block
 
-SEC("racepoint/ext4/es_insert_delayed_block")
+SEC("tracepoint/ext4/es_insert_delayed_block")
 int tp_ext4_es_insert_delayed_block(
 	struct tp_ext4_es_insert_delayed_block_t *ctx
 )
@@ -1711,7 +1711,7 @@ int tp_ext4_es_insert_delayed_block(
 
 // Implementation for tp_ext4_es_insert_extent
 
-SEC("racepoint/ext4/es_insert_extent")
+SEC("tracepoint/ext4/es_insert_extent")
 int tp_ext4_es_insert_extent(struct tp_ext4_es_insert_extent_t *ctx)
 {
 	struct ext4_es_insert_extent_t event = {};
@@ -1734,7 +1734,7 @@ int tp_ext4_es_insert_extent(struct tp_ext4_es_insert_extent_t *ctx)
 
 // Implementation for tp_ext4_es_lookup_extent_enter
 
-SEC("racepoint/ext4/es_lookup_extent_enter")
+SEC("tracepoint/ext4/es_lookup_extent_enter")
 int tp_ext4_es_lookup_extent_enter(struct tp_ext4_es_lookup_extent_enter_t *ctx)
 {
 	struct ext4_es_lookup_extent_enter_t event = {};
@@ -1754,7 +1754,7 @@ int tp_ext4_es_lookup_extent_enter(struct tp_ext4_es_lookup_extent_enter_t *ctx)
 
 // Implementation for tp_ext4_es_lookup_extent_exit
 
-SEC("racepoint/ext4/es_lookup_extent_exit")
+SEC("tracepoint/ext4/es_lookup_extent_exit")
 int tp_ext4_es_lookup_extent_exit(struct tp_ext4_es_lookup_extent_exit_t *ctx)
 {
 	struct ext4_es_lookup_extent_exit_t event = {};
@@ -1778,7 +1778,7 @@ int tp_ext4_es_lookup_extent_exit(struct tp_ext4_es_lookup_extent_exit_t *ctx)
 
 // Implementation for tp_ext4_es_remove_extent
 
-SEC("racepoint/ext4/es_remove_extent")
+SEC("tracepoint/ext4/es_remove_extent")
 int tp_ext4_es_remove_extent(struct tp_ext4_es_remove_extent_t *ctx)
 {
 	struct ext4_es_remove_extent_t event = {};
@@ -1799,7 +1799,7 @@ int tp_ext4_es_remove_extent(struct tp_ext4_es_remove_extent_t *ctx)
 
 // Implementation for tp_ext4_es_shrink
 
-SEC("racepoint/ext4/es_shrink")
+SEC("tracepoint/ext4/es_shrink")
 int tp_ext4_es_shrink(struct tp_ext4_es_shrink_t *ctx)
 {
 	struct ext4_es_shrink_t event = {};
@@ -1821,7 +1821,7 @@ int tp_ext4_es_shrink(struct tp_ext4_es_shrink_t *ctx)
 
 // Implementation for tp_ext4_es_shrink_count
 
-SEC("racepoint/ext4/es_shrink_count")
+SEC("tracepoint/ext4/es_shrink_count")
 int tp_ext4_es_shrink_count(struct tp_ext4_es_shrink_count_t *ctx)
 {
 	struct ext4_es_shrink_count_t event = {};
@@ -1841,7 +1841,7 @@ int tp_ext4_es_shrink_count(struct tp_ext4_es_shrink_count_t *ctx)
 
 // Implementation for tp_ext4_es_shrink_scan_enter
 
-SEC("racepoint/ext4/es_shrink_scan_enter")
+SEC("tracepoint/ext4/es_shrink_scan_enter")
 int tp_ext4_es_shrink_scan_enter(struct tp_ext4_es_shrink_scan_enter_t *ctx)
 {
 	struct ext4_es_shrink_scan_enter_t event = {};
@@ -1861,7 +1861,7 @@ int tp_ext4_es_shrink_scan_enter(struct tp_ext4_es_shrink_scan_enter_t *ctx)
 
 // Implementation for tp_ext4_es_shrink_scan_exit
 
-SEC("racepoint/ext4/es_shrink_scan_exit")
+SEC("tracepoint/ext4/es_shrink_scan_exit")
 int tp_ext4_es_shrink_scan_exit(struct tp_ext4_es_shrink_scan_exit_t *ctx)
 {
 	struct ext4_es_shrink_scan_exit_t event = {};
@@ -1881,7 +1881,7 @@ int tp_ext4_es_shrink_scan_exit(struct tp_ext4_es_shrink_scan_exit_t *ctx)
 
 // Implementation for tp_ext4_evict_inode
 
-SEC("racepoint/ext4/evict_inode")
+SEC("tracepoint/ext4/evict_inode")
 int tp_ext4_evict_inode(struct tp_ext4_evict_inode_t *ctx)
 {
 	struct ext4_evict_inode_t event = {};
@@ -1901,7 +1901,7 @@ int tp_ext4_evict_inode(struct tp_ext4_evict_inode_t *ctx)
 
 // Implementation for tp_ext4_ext_convert_to_initialized_enter
 
-SEC("racepoint/ext4/ext_convert_to_initialized_enter")
+SEC("tracepoint/ext4/ext_convert_to_initialized_enter")
 int tp_ext4_ext_convert_to_initialized_enter(
 	struct tp_ext4_ext_convert_to_initialized_enter_t *ctx
 )
@@ -1927,7 +1927,7 @@ int tp_ext4_ext_convert_to_initialized_enter(
 
 // Implementation for tp_ext4_ext_convert_to_initialized_fastpath
 
-SEC("racepoint/ext4/ext_convert_to_initialized_fastpath")
+SEC("tracepoint/ext4/ext_convert_to_initialized_fastpath")
 int tp_ext4_ext_convert_to_initialized_fastpath(
 	struct tp_ext4_ext_convert_to_initialized_fastpath_t *ctx
 )
@@ -1956,7 +1956,7 @@ int tp_ext4_ext_convert_to_initialized_fastpath(
 
 // Implementation for tp_ext4_ext_handle_unwritten_extents
 
-SEC("racepoint/ext4/ext_handle_unwritten_extents")
+SEC("tracepoint/ext4/ext_handle_unwritten_extents")
 int tp_ext4_ext_handle_unwritten_extents(
 	struct tp_ext4_ext_handle_unwritten_extents_t *ctx
 )
@@ -1983,7 +1983,7 @@ int tp_ext4_ext_handle_unwritten_extents(
 
 // Implementation for tp_ext4_ext_load_extent
 
-SEC("racepoint/ext4/ext_load_extent")
+SEC("tracepoint/ext4/ext_load_extent")
 int tp_ext4_ext_load_extent(struct tp_ext4_ext_load_extent_t *ctx)
 {
 	struct ext4_ext_load_extent_t event = {};
@@ -2004,7 +2004,7 @@ int tp_ext4_ext_load_extent(struct tp_ext4_ext_load_extent_t *ctx)
 
 // Implementation for tp_ext4_ext_map_blocks_enter
 
-SEC("racepoint/ext4/ext_map_blocks_enter")
+SEC("tracepoint/ext4/ext_map_blocks_enter")
 int tp_ext4_ext_map_blocks_enter(struct tp_ext4_ext_map_blocks_enter_t *ctx)
 {
 	struct ext4_ext_map_blocks_enter_t event = {};
@@ -2026,7 +2026,7 @@ int tp_ext4_ext_map_blocks_enter(struct tp_ext4_ext_map_blocks_enter_t *ctx)
 
 // Implementation for tp_ext4_ext_map_blocks_exit
 
-SEC("racepoint/ext4/ext_map_blocks_exit")
+SEC("tracepoint/ext4/ext_map_blocks_exit")
 int tp_ext4_ext_map_blocks_exit(struct tp_ext4_ext_map_blocks_exit_t *ctx)
 {
 	struct ext4_ext_map_blocks_exit_t event = {};
@@ -2051,7 +2051,7 @@ int tp_ext4_ext_map_blocks_exit(struct tp_ext4_ext_map_blocks_exit_t *ctx)
 
 // Implementation for tp_ext4_ext_remove_space
 
-SEC("racepoint/ext4/ext_remove_space")
+SEC("tracepoint/ext4/ext_remove_space")
 int tp_ext4_ext_remove_space(struct tp_ext4_ext_remove_space_t *ctx)
 {
 	struct ext4_ext_remove_space_t event = {};
@@ -2073,7 +2073,7 @@ int tp_ext4_ext_remove_space(struct tp_ext4_ext_remove_space_t *ctx)
 
 // Implementation for tp_ext4_ext_remove_space_done
 
-SEC("racepoint/ext4/ext_remove_space_done")
+SEC("tracepoint/ext4/ext_remove_space_done")
 int tp_ext4_ext_remove_space_done(struct tp_ext4_ext_remove_space_done_t *ctx)
 {
 	struct ext4_ext_remove_space_done_t event = {};
@@ -2099,7 +2099,7 @@ int tp_ext4_ext_remove_space_done(struct tp_ext4_ext_remove_space_done_t *ctx)
 
 // Implementation for tp_ext4_ext_rm_idx
 
-SEC("racepoint/ext4/ext_rm_idx")
+SEC("tracepoint/ext4/ext_rm_idx")
 int tp_ext4_ext_rm_idx(struct tp_ext4_ext_rm_idx_t *ctx)
 {
 	struct ext4_ext_rm_idx_t event = {};
@@ -2119,7 +2119,7 @@ int tp_ext4_ext_rm_idx(struct tp_ext4_ext_rm_idx_t *ctx)
 
 // Implementation for tp_ext4_ext_rm_leaf
 
-SEC("racepoint/ext4/ext_rm_leaf")
+SEC("tracepoint/ext4/ext_rm_leaf")
 int tp_ext4_ext_rm_leaf(struct tp_ext4_ext_rm_leaf_t *ctx)
 {
 	struct ext4_ext_rm_leaf_t event = {};
@@ -2145,7 +2145,7 @@ int tp_ext4_ext_rm_leaf(struct tp_ext4_ext_rm_leaf_t *ctx)
 
 // Implementation for tp_ext4_ext_show_extent
 
-SEC("racepoint/ext4/ext_show_extent")
+SEC("tracepoint/ext4/ext_show_extent")
 int tp_ext4_ext_show_extent(struct tp_ext4_ext_show_extent_t *ctx)
 {
 	struct ext4_ext_show_extent_t event = {};
@@ -2167,7 +2167,7 @@ int tp_ext4_ext_show_extent(struct tp_ext4_ext_show_extent_t *ctx)
 
 // Implementation for tp_ext4_fallocate_enter
 
-SEC("racepoint/ext4/fallocate_enter")
+SEC("tracepoint/ext4/fallocate_enter")
 int tp_ext4_fallocate_enter(struct tp_ext4_fallocate_enter_t *ctx)
 {
 	struct ext4_fallocate_enter_t event = {};
@@ -2189,7 +2189,7 @@ int tp_ext4_fallocate_enter(struct tp_ext4_fallocate_enter_t *ctx)
 
 // Implementation for tp_ext4_fallocate_exit
 
-SEC("racepoint/ext4/fallocate_exit")
+SEC("tracepoint/ext4/fallocate_exit")
 int tp_ext4_fallocate_exit(struct tp_ext4_fallocate_exit_t *ctx)
 {
 	struct ext4_fallocate_exit_t event = {};
@@ -2211,7 +2211,7 @@ int tp_ext4_fallocate_exit(struct tp_ext4_fallocate_exit_t *ctx)
 
 // Implementation for tp_ext4_fc_cleanup
 
-SEC("racepoint/ext4/fc_cleanup")
+SEC("tracepoint/ext4/fc_cleanup")
 int tp_ext4_fc_cleanup(struct tp_ext4_fc_cleanup_t *ctx)
 {
 	struct ext4_fc_cleanup_t event = {};
@@ -2232,7 +2232,7 @@ int tp_ext4_fc_cleanup(struct tp_ext4_fc_cleanup_t *ctx)
 
 // Implementation for tp_ext4_fc_commit_start
 
-SEC("racepoint/ext4/fc_commit_start")
+SEC("tracepoint/ext4/fc_commit_start")
 int tp_ext4_fc_commit_start(struct tp_ext4_fc_commit_start_t *ctx)
 {
 	struct ext4_fc_commit_start_t event = {};
@@ -2251,7 +2251,7 @@ int tp_ext4_fc_commit_start(struct tp_ext4_fc_commit_start_t *ctx)
 
 // Implementation for tp_ext4_fc_commit_stop
 
-SEC("racepoint/ext4/fc_commit_stop")
+SEC("tracepoint/ext4/fc_commit_stop")
 int tp_ext4_fc_commit_stop(struct tp_ext4_fc_commit_stop_t *ctx)
 {
 	struct ext4_fc_commit_stop_t event = {};
@@ -2275,7 +2275,7 @@ int tp_ext4_fc_commit_stop(struct tp_ext4_fc_commit_stop_t *ctx)
 
 // Implementation for tp_ext4_fc_replay
 
-SEC("racepoint/ext4/fc_replay")
+SEC("tracepoint/ext4/fc_replay")
 int tp_ext4_fc_replay(struct tp_ext4_fc_replay_t *ctx)
 {
 	struct ext4_fc_replay_t event = {};
@@ -2297,7 +2297,7 @@ int tp_ext4_fc_replay(struct tp_ext4_fc_replay_t *ctx)
 
 // Implementation for tp_ext4_fc_replay_scan
 
-SEC("racepoint/ext4/fc_replay_scan")
+SEC("tracepoint/ext4/fc_replay_scan")
 int tp_ext4_fc_replay_scan(struct tp_ext4_fc_replay_scan_t *ctx)
 {
 	struct ext4_fc_replay_scan_t event = {};
@@ -2317,7 +2317,7 @@ int tp_ext4_fc_replay_scan(struct tp_ext4_fc_replay_scan_t *ctx)
 
 // Implementation for tp_ext4_fc_stats
 
-SEC("racepoint/ext4/fc_stats")
+SEC("tracepoint/ext4/fc_stats")
 int tp_ext4_fc_stats(struct tp_ext4_fc_stats_t *ctx)
 {
 	struct ext4_fc_stats_t event = {};
@@ -2338,7 +2338,7 @@ int tp_ext4_fc_stats(struct tp_ext4_fc_stats_t *ctx)
 
 // Implementation for tp_ext4_fc_track_create
 
-SEC("racepoint/ext4/fc_track_create")
+SEC("tracepoint/ext4/fc_track_create")
 int tp_ext4_fc_track_create(struct tp_ext4_fc_track_create_t *ctx)
 {
 	struct ext4_fc_track_create_t event = {};
@@ -2360,7 +2360,7 @@ int tp_ext4_fc_track_create(struct tp_ext4_fc_track_create_t *ctx)
 
 // Implementation for tp_ext4_fc_track_inode
 
-SEC("racepoint/ext4/fc_track_inode")
+SEC("tracepoint/ext4/fc_track_inode")
 int tp_ext4_fc_track_inode(struct tp_ext4_fc_track_inode_t *ctx)
 {
 	struct ext4_fc_track_inode_t event = {};
@@ -2382,7 +2382,7 @@ int tp_ext4_fc_track_inode(struct tp_ext4_fc_track_inode_t *ctx)
 
 // Implementation for tp_ext4_fc_track_link
 
-SEC("racepoint/ext4/fc_track_link")
+SEC("tracepoint/ext4/fc_track_link")
 int tp_ext4_fc_track_link(struct tp_ext4_fc_track_link_t *ctx)
 {
 	struct ext4_fc_track_link_t event = {};
@@ -2404,7 +2404,7 @@ int tp_ext4_fc_track_link(struct tp_ext4_fc_track_link_t *ctx)
 
 // Implementation for tp_ext4_fc_track_range
 
-SEC("racepoint/ext4/fc_track_range")
+SEC("tracepoint/ext4/fc_track_range")
 int tp_ext4_fc_track_range(struct tp_ext4_fc_track_range_t *ctx)
 {
 	struct ext4_fc_track_range_t event = {};
@@ -2428,7 +2428,7 @@ int tp_ext4_fc_track_range(struct tp_ext4_fc_track_range_t *ctx)
 
 // Implementation for tp_ext4_fc_track_unlink
 
-SEC("racepoint/ext4/fc_track_unlink")
+SEC("tracepoint/ext4/fc_track_unlink")
 int tp_ext4_fc_track_unlink(struct tp_ext4_fc_track_unlink_t *ctx)
 {
 	struct ext4_fc_track_unlink_t event = {};
@@ -2450,7 +2450,7 @@ int tp_ext4_fc_track_unlink(struct tp_ext4_fc_track_unlink_t *ctx)
 
 // Implementation for tp_ext4_forget
 
-SEC("racepoint/ext4/forget")
+SEC("tracepoint/ext4/forget")
 int tp_ext4_forget(struct tp_ext4_forget_t *ctx)
 {
 	struct ext4_forget_t event = {};
@@ -2472,7 +2472,7 @@ int tp_ext4_forget(struct tp_ext4_forget_t *ctx)
 
 // Implementation for tp_ext4_free_blocks
 
-SEC("racepoint/ext4/free_blocks")
+SEC("tracepoint/ext4/free_blocks")
 int tp_ext4_free_blocks(struct tp_ext4_free_blocks_t *ctx)
 {
 	struct ext4_free_blocks_t event = {};
@@ -2495,7 +2495,7 @@ int tp_ext4_free_blocks(struct tp_ext4_free_blocks_t *ctx)
 
 // Implementation for tp_ext4_free_inode
 
-SEC("racepoint/ext4/free_inode")
+SEC("tracepoint/ext4/free_inode")
 int tp_ext4_free_inode(struct tp_ext4_free_inode_t *ctx)
 {
 	struct ext4_free_inode_t event = {};
@@ -2518,7 +2518,7 @@ int tp_ext4_free_inode(struct tp_ext4_free_inode_t *ctx)
 
 // Implementation for tp_ext4_fsmap_high_key
 
-SEC("racepoint/ext4/fsmap_high_key")
+SEC("tracepoint/ext4/fsmap_high_key")
 int tp_ext4_fsmap_high_key(struct tp_ext4_fsmap_high_key_t *ctx)
 {
 	struct ext4_fsmap_high_key_t event = {};
@@ -2541,7 +2541,7 @@ int tp_ext4_fsmap_high_key(struct tp_ext4_fsmap_high_key_t *ctx)
 
 // Implementation for tp_ext4_fsmap_low_key
 
-SEC("racepoint/ext4/fsmap_low_key")
+SEC("tracepoint/ext4/fsmap_low_key")
 int tp_ext4_fsmap_low_key(struct tp_ext4_fsmap_low_key_t *ctx)
 {
 	struct ext4_fsmap_low_key_t event = {};
@@ -2564,7 +2564,7 @@ int tp_ext4_fsmap_low_key(struct tp_ext4_fsmap_low_key_t *ctx)
 
 // Implementation for tp_ext4_fsmap_mapping
 
-SEC("racepoint/ext4/fsmap_mapping")
+SEC("tracepoint/ext4/fsmap_mapping")
 int tp_ext4_fsmap_mapping(struct tp_ext4_fsmap_mapping_t *ctx)
 {
 	struct ext4_fsmap_mapping_t event = {};
@@ -2587,7 +2587,7 @@ int tp_ext4_fsmap_mapping(struct tp_ext4_fsmap_mapping_t *ctx)
 
 // Implementation for tp_ext4_get_implied_cluster_alloc_exit
 
-SEC("racepoint/ext4/get_implied_cluster_alloc_exit")
+SEC("tracepoint/ext4/get_implied_cluster_alloc_exit")
 int tp_ext4_get_implied_cluster_alloc_exit(
 	struct tp_ext4_get_implied_cluster_alloc_exit_t *ctx
 )
@@ -2612,7 +2612,7 @@ int tp_ext4_get_implied_cluster_alloc_exit(
 
 // Implementation for tp_ext4_getfsmap_high_key
 
-SEC("racepoint/ext4/getfsmap_high_key")
+SEC("tracepoint/ext4/getfsmap_high_key")
 int tp_ext4_getfsmap_high_key(struct tp_ext4_getfsmap_high_key_t *ctx)
 {
 	struct ext4_getfsmap_high_key_t event = {};
@@ -2635,7 +2635,7 @@ int tp_ext4_getfsmap_high_key(struct tp_ext4_getfsmap_high_key_t *ctx)
 
 // Implementation for tp_ext4_getfsmap_low_key
 
-SEC("racepoint/ext4/getfsmap_low_key")
+SEC("tracepoint/ext4/getfsmap_low_key")
 int tp_ext4_getfsmap_low_key(struct tp_ext4_getfsmap_low_key_t *ctx)
 {
 	struct ext4_getfsmap_low_key_t event = {};
@@ -2658,7 +2658,7 @@ int tp_ext4_getfsmap_low_key(struct tp_ext4_getfsmap_low_key_t *ctx)
 
 // Implementation for tp_ext4_getfsmap_mapping
 
-SEC("racepoint/ext4/getfsmap_mapping")
+SEC("tracepoint/ext4/getfsmap_mapping")
 int tp_ext4_getfsmap_mapping(struct tp_ext4_getfsmap_mapping_t *ctx)
 {
 	struct ext4_getfsmap_mapping_t event = {};
@@ -2681,7 +2681,7 @@ int tp_ext4_getfsmap_mapping(struct tp_ext4_getfsmap_mapping_t *ctx)
 
 // Implementation for tp_ext4_ind_map_blocks_enter
 
-SEC("racepoint/ext4/ind_map_blocks_enter")
+SEC("tracepoint/ext4/ind_map_blocks_enter")
 int tp_ext4_ind_map_blocks_enter(struct tp_ext4_ind_map_blocks_enter_t *ctx)
 {
 	struct ext4_ind_map_blocks_enter_t event = {};
@@ -2703,7 +2703,7 @@ int tp_ext4_ind_map_blocks_enter(struct tp_ext4_ind_map_blocks_enter_t *ctx)
 
 // Implementation for tp_ext4_ind_map_blocks_exit
 
-SEC("racepoint/ext4/ind_map_blocks_exit")
+SEC("tracepoint/ext4/ind_map_blocks_exit")
 int tp_ext4_ind_map_blocks_exit(struct tp_ext4_ind_map_blocks_exit_t *ctx)
 {
 	struct ext4_ind_map_blocks_exit_t event = {};
@@ -2728,7 +2728,7 @@ int tp_ext4_ind_map_blocks_exit(struct tp_ext4_ind_map_blocks_exit_t *ctx)
 
 // Implementation for tp_ext4_insert_range
 
-SEC("racepoint/ext4/insert_range")
+SEC("tracepoint/ext4/insert_range")
 int tp_ext4_insert_range(struct tp_ext4_insert_range_t *ctx)
 {
 	struct ext4_insert_range_t event = {};
@@ -2749,7 +2749,7 @@ int tp_ext4_insert_range(struct tp_ext4_insert_range_t *ctx)
 
 // Implementation for tp_ext4_invalidate_folio
 
-SEC("racepoint/ext4/invalidate_folio")
+SEC("tracepoint/ext4/invalidate_folio")
 int tp_ext4_invalidate_folio(struct tp_ext4_invalidate_folio_t *ctx)
 {
 	struct ext4_invalidate_folio_t event = {};
@@ -2771,7 +2771,7 @@ int tp_ext4_invalidate_folio(struct tp_ext4_invalidate_folio_t *ctx)
 
 // Implementation for tp_ext4_journal_start_inode
 
-SEC("racepoint/ext4/journal_start_inode")
+SEC("tracepoint/ext4/journal_start_inode")
 int tp_ext4_journal_start_inode(struct tp_ext4_journal_start_inode_t *ctx)
 {
 	struct ext4_journal_start_inode_t event = {};
@@ -2795,7 +2795,7 @@ int tp_ext4_journal_start_inode(struct tp_ext4_journal_start_inode_t *ctx)
 
 // Implementation for tp_ext4_journal_start_reserved
 
-SEC("racepoint/ext4/journal_start_reserved")
+SEC("tracepoint/ext4/journal_start_reserved")
 int tp_ext4_journal_start_reserved(struct tp_ext4_journal_start_reserved_t *ctx)
 {
 	struct ext4_journal_start_reserved_t event = {};
@@ -2815,7 +2815,7 @@ int tp_ext4_journal_start_reserved(struct tp_ext4_journal_start_reserved_t *ctx)
 
 // Implementation for tp_ext4_journal_start_sb
 
-SEC("racepoint/ext4/journal_start_sb")
+SEC("tracepoint/ext4/journal_start_sb")
 int tp_ext4_journal_start_sb(struct tp_ext4_journal_start_sb_t *ctx)
 {
 	struct ext4_journal_start_sb_t event = {};
@@ -2838,7 +2838,7 @@ int tp_ext4_journal_start_sb(struct tp_ext4_journal_start_sb_t *ctx)
 
 // Implementation for tp_ext4_journalled_invalidate_folio
 
-SEC("racepoint/ext4/journalled_invalidate_folio")
+SEC("tracepoint/ext4/journalled_invalidate_folio")
 int tp_ext4_journalled_invalidate_folio(
 	struct tp_ext4_journalled_invalidate_folio_t *ctx
 )
@@ -2862,7 +2862,7 @@ int tp_ext4_journalled_invalidate_folio(
 
 // Implementation for tp_ext4_journalled_write_end
 
-SEC("racepoint/ext4/journalled_write_end")
+SEC("tracepoint/ext4/journalled_write_end")
 int tp_ext4_journalled_write_end(struct tp_ext4_journalled_write_end_t *ctx)
 {
 	struct ext4_journalled_write_end_t event = {};
@@ -2884,7 +2884,7 @@ int tp_ext4_journalled_write_end(struct tp_ext4_journalled_write_end_t *ctx)
 
 // Implementation for tp_ext4_lazy_itable_init
 
-SEC("racepoint/ext4/lazy_itable_init")
+SEC("tracepoint/ext4/lazy_itable_init")
 int tp_ext4_lazy_itable_init(struct tp_ext4_lazy_itable_init_t *ctx)
 {
 	struct ext4_lazy_itable_init_t event = {};
@@ -2903,7 +2903,7 @@ int tp_ext4_lazy_itable_init(struct tp_ext4_lazy_itable_init_t *ctx)
 
 // Implementation for tp_ext4_load_inode
 
-SEC("racepoint/ext4/load_inode")
+SEC("tracepoint/ext4/load_inode")
 int tp_ext4_load_inode(struct tp_ext4_load_inode_t *ctx)
 {
 	struct ext4_load_inode_t event = {};
@@ -2922,7 +2922,7 @@ int tp_ext4_load_inode(struct tp_ext4_load_inode_t *ctx)
 
 // Implementation for tp_ext4_load_inode_bitmap
 
-SEC("racepoint/ext4/load_inode_bitmap")
+SEC("tracepoint/ext4/load_inode_bitmap")
 int tp_ext4_load_inode_bitmap(struct tp_ext4_load_inode_bitmap_t *ctx)
 {
 	struct ext4_load_inode_bitmap_t event = {};
@@ -2941,7 +2941,7 @@ int tp_ext4_load_inode_bitmap(struct tp_ext4_load_inode_bitmap_t *ctx)
 
 // Implementation for tp_ext4_mark_inode_dirty
 
-SEC("racepoint/ext4/mark_inode_dirty")
+SEC("tracepoint/ext4/mark_inode_dirty")
 int tp_ext4_mark_inode_dirty(struct tp_ext4_mark_inode_dirty_t *ctx)
 {
 	struct ext4_mark_inode_dirty_t event = {};
@@ -2961,7 +2961,7 @@ int tp_ext4_mark_inode_dirty(struct tp_ext4_mark_inode_dirty_t *ctx)
 
 // Implementation for tp_ext4_mb_bitmap_load
 
-SEC("racepoint/ext4/mb_bitmap_load")
+SEC("tracepoint/ext4/mb_bitmap_load")
 int tp_ext4_mb_bitmap_load(struct tp_ext4_mb_bitmap_load_t *ctx)
 {
 	struct ext4_mb_bitmap_load_t event = {};
@@ -2980,7 +2980,7 @@ int tp_ext4_mb_bitmap_load(struct tp_ext4_mb_bitmap_load_t *ctx)
 
 // Implementation for tp_ext4_mb_buddy_bitmap_load
 
-SEC("racepoint/ext4/mb_buddy_bitmap_load")
+SEC("tracepoint/ext4/mb_buddy_bitmap_load")
 int tp_ext4_mb_buddy_bitmap_load(struct tp_ext4_mb_buddy_bitmap_load_t *ctx)
 {
 	struct ext4_mb_buddy_bitmap_load_t event = {};
@@ -2999,7 +2999,7 @@ int tp_ext4_mb_buddy_bitmap_load(struct tp_ext4_mb_buddy_bitmap_load_t *ctx)
 
 // Implementation for tp_ext4_mb_discard_preallocations
 
-SEC("racepoint/ext4/mb_discard_preallocations")
+SEC("tracepoint/ext4/mb_discard_preallocations")
 int tp_ext4_mb_discard_preallocations(
 	struct tp_ext4_mb_discard_preallocations_t *ctx
 )
@@ -3020,7 +3020,7 @@ int tp_ext4_mb_discard_preallocations(
 
 // Implementation for tp_ext4_mb_new_group_pa
 
-SEC("racepoint/ext4/mb_new_group_pa")
+SEC("tracepoint/ext4/mb_new_group_pa")
 int tp_ext4_mb_new_group_pa(struct tp_ext4_mb_new_group_pa_t *ctx)
 {
 	struct ext4_mb_new_group_pa_t event = {};
@@ -3042,7 +3042,7 @@ int tp_ext4_mb_new_group_pa(struct tp_ext4_mb_new_group_pa_t *ctx)
 
 // Implementation for tp_ext4_mb_new_inode_pa
 
-SEC("racepoint/ext4/mb_new_inode_pa")
+SEC("tracepoint/ext4/mb_new_inode_pa")
 int tp_ext4_mb_new_inode_pa(struct tp_ext4_mb_new_inode_pa_t *ctx)
 {
 	struct ext4_mb_new_inode_pa_t event = {};
@@ -3064,7 +3064,7 @@ int tp_ext4_mb_new_inode_pa(struct tp_ext4_mb_new_inode_pa_t *ctx)
 
 // Implementation for tp_ext4_mb_release_group_pa
 
-SEC("racepoint/ext4/mb_release_group_pa")
+SEC("tracepoint/ext4/mb_release_group_pa")
 int tp_ext4_mb_release_group_pa(struct tp_ext4_mb_release_group_pa_t *ctx)
 {
 	struct ext4_mb_release_group_pa_t event = {};
@@ -3084,7 +3084,7 @@ int tp_ext4_mb_release_group_pa(struct tp_ext4_mb_release_group_pa_t *ctx)
 
 // Implementation for tp_ext4_mb_release_inode_pa
 
-SEC("racepoint/ext4/mb_release_inode_pa")
+SEC("tracepoint/ext4/mb_release_inode_pa")
 int tp_ext4_mb_release_inode_pa(struct tp_ext4_mb_release_inode_pa_t *ctx)
 {
 	struct ext4_mb_release_inode_pa_t event = {};
@@ -3105,7 +3105,7 @@ int tp_ext4_mb_release_inode_pa(struct tp_ext4_mb_release_inode_pa_t *ctx)
 
 // Implementation for tp_ext4_mballoc_alloc
 
-SEC("racepoint/ext4/mballoc_alloc")
+SEC("tracepoint/ext4/mballoc_alloc")
 int tp_ext4_mballoc_alloc(struct tp_ext4_mballoc_alloc_t *ctx)
 {
 	struct ext4_mballoc_alloc_t event = {};
@@ -3142,7 +3142,7 @@ int tp_ext4_mballoc_alloc(struct tp_ext4_mballoc_alloc_t *ctx)
 
 // Implementation for tp_ext4_mballoc_discard
 
-SEC("racepoint/ext4/mballoc_discard")
+SEC("tracepoint/ext4/mballoc_discard")
 int tp_ext4_mballoc_discard(struct tp_ext4_mballoc_discard_t *ctx)
 {
 	struct ext4_mballoc_discard_t event = {};
@@ -3164,7 +3164,7 @@ int tp_ext4_mballoc_discard(struct tp_ext4_mballoc_discard_t *ctx)
 
 // Implementation for tp_ext4_mballoc_free
 
-SEC("racepoint/ext4/mballoc_free")
+SEC("tracepoint/ext4/mballoc_free")
 int tp_ext4_mballoc_free(struct tp_ext4_mballoc_free_t *ctx)
 {
 	struct ext4_mballoc_free_t event = {};
@@ -3186,7 +3186,7 @@ int tp_ext4_mballoc_free(struct tp_ext4_mballoc_free_t *ctx)
 
 // Implementation for tp_ext4_mballoc_prealloc
 
-SEC("racepoint/ext4/mballoc_prealloc")
+SEC("tracepoint/ext4/mballoc_prealloc")
 int tp_ext4_mballoc_prealloc(struct tp_ext4_mballoc_prealloc_t *ctx)
 {
 	struct ext4_mballoc_prealloc_t event = {};
@@ -3213,7 +3213,7 @@ int tp_ext4_mballoc_prealloc(struct tp_ext4_mballoc_prealloc_t *ctx)
 
 // Implementation for tp_ext4_nfs_commit_metadata
 
-SEC("racepoint/ext4/nfs_commit_metadata")
+SEC("tracepoint/ext4/nfs_commit_metadata")
 int tp_ext4_nfs_commit_metadata(struct tp_ext4_nfs_commit_metadata_t *ctx)
 {
 	struct ext4_nfs_commit_metadata_t event = {};
@@ -3232,7 +3232,7 @@ int tp_ext4_nfs_commit_metadata(struct tp_ext4_nfs_commit_metadata_t *ctx)
 
 // Implementation for tp_ext4_other_inode_update_time
 
-SEC("racepoint/ext4/other_inode_update_time")
+SEC("tracepoint/ext4/other_inode_update_time")
 int tp_ext4_other_inode_update_time(
 	struct tp_ext4_other_inode_update_time_t *ctx
 )
@@ -3257,7 +3257,7 @@ int tp_ext4_other_inode_update_time(
 
 // Implementation for tp_ext4_prefetch_bitmaps
 
-SEC("racepoint/ext4/prefetch_bitmaps")
+SEC("tracepoint/ext4/prefetch_bitmaps")
 int tp_ext4_prefetch_bitmaps(struct tp_ext4_prefetch_bitmaps_t *ctx)
 {
 	struct ext4_prefetch_bitmaps_t event = {};
@@ -3278,7 +3278,7 @@ int tp_ext4_prefetch_bitmaps(struct tp_ext4_prefetch_bitmaps_t *ctx)
 
 // Implementation for tp_ext4_punch_hole
 
-SEC("racepoint/ext4/punch_hole")
+SEC("tracepoint/ext4/punch_hole")
 int tp_ext4_punch_hole(struct tp_ext4_punch_hole_t *ctx)
 {
 	struct ext4_punch_hole_t event = {};
@@ -3300,7 +3300,7 @@ int tp_ext4_punch_hole(struct tp_ext4_punch_hole_t *ctx)
 
 // Implementation for tp_ext4_read_block_bitmap_load
 
-SEC("racepoint/ext4/read_block_bitmap_load")
+SEC("tracepoint/ext4/read_block_bitmap_load")
 int tp_ext4_read_block_bitmap_load(struct tp_ext4_read_block_bitmap_load_t *ctx)
 {
 	struct ext4_read_block_bitmap_load_t event = {};
@@ -3320,7 +3320,7 @@ int tp_ext4_read_block_bitmap_load(struct tp_ext4_read_block_bitmap_load_t *ctx)
 
 // Implementation for tp_ext4_read_folio
 
-SEC("racepoint/ext4/read_folio")
+SEC("tracepoint/ext4/read_folio")
 int tp_ext4_read_folio(struct tp_ext4_read_folio_t *ctx)
 {
 	struct ext4_read_folio_t event = {};
@@ -3340,7 +3340,7 @@ int tp_ext4_read_folio(struct tp_ext4_read_folio_t *ctx)
 
 // Implementation for tp_ext4_release_folio
 
-SEC("racepoint/ext4/release_folio")
+SEC("tracepoint/ext4/release_folio")
 int tp_ext4_release_folio(struct tp_ext4_release_folio_t *ctx)
 {
 	struct ext4_release_folio_t event = {};
@@ -3360,7 +3360,7 @@ int tp_ext4_release_folio(struct tp_ext4_release_folio_t *ctx)
 
 // Implementation for tp_ext4_remove_blocks
 
-SEC("racepoint/ext4/remove_blocks")
+SEC("tracepoint/ext4/remove_blocks")
 int tp_ext4_remove_blocks(struct tp_ext4_remove_blocks_t *ctx)
 {
 	struct ext4_remove_blocks_t event = {};
@@ -3387,7 +3387,7 @@ int tp_ext4_remove_blocks(struct tp_ext4_remove_blocks_t *ctx)
 
 // Implementation for tp_ext4_request_blocks
 
-SEC("racepoint/ext4/request_blocks")
+SEC("tracepoint/ext4/request_blocks")
 int tp_ext4_request_blocks(struct tp_ext4_request_blocks_t *ctx)
 {
 	struct ext4_request_blocks_t event = {};
@@ -3414,7 +3414,7 @@ int tp_ext4_request_blocks(struct tp_ext4_request_blocks_t *ctx)
 
 // Implementation for tp_ext4_request_inode
 
-SEC("racepoint/ext4/request_inode")
+SEC("tracepoint/ext4/request_inode")
 int tp_ext4_request_inode(struct tp_ext4_request_inode_t *ctx)
 {
 	struct ext4_request_inode_t event = {};
@@ -3434,7 +3434,7 @@ int tp_ext4_request_inode(struct tp_ext4_request_inode_t *ctx)
 
 // Implementation for tp_ext4_shutdown
 
-SEC("racepoint/ext4/shutdown")
+SEC("tracepoint/ext4/shutdown")
 int tp_ext4_shutdown(struct tp_ext4_shutdown_t *ctx)
 {
 	struct ext4_shutdown_t event = {};
@@ -3453,7 +3453,7 @@ int tp_ext4_shutdown(struct tp_ext4_shutdown_t *ctx)
 
 // Implementation for tp_ext4_sync_file_enter
 
-SEC("racepoint/ext4/sync_file_enter")
+SEC("tracepoint/ext4/sync_file_enter")
 int tp_ext4_sync_file_enter(struct tp_ext4_sync_file_enter_t *ctx)
 {
 	struct ext4_sync_file_enter_t event = {};
@@ -3474,7 +3474,7 @@ int tp_ext4_sync_file_enter(struct tp_ext4_sync_file_enter_t *ctx)
 
 // Implementation for tp_ext4_sync_file_exit
 
-SEC("racepoint/ext4/sync_file_exit")
+SEC("tracepoint/ext4/sync_file_exit")
 int tp_ext4_sync_file_exit(struct tp_ext4_sync_file_exit_t *ctx)
 {
 	struct ext4_sync_file_exit_t event = {};
@@ -3494,7 +3494,7 @@ int tp_ext4_sync_file_exit(struct tp_ext4_sync_file_exit_t *ctx)
 
 // Implementation for tp_ext4_sync_fs
 
-SEC("racepoint/ext4/sync_fs")
+SEC("tracepoint/ext4/sync_fs")
 int tp_ext4_sync_fs(struct tp_ext4_sync_fs_t *ctx)
 {
 	struct ext4_sync_fs_t event = {};
@@ -3513,7 +3513,7 @@ int tp_ext4_sync_fs(struct tp_ext4_sync_fs_t *ctx)
 
 // Implementation for tp_ext4_trim_all_free
 
-SEC("racepoint/ext4/trim_all_free")
+SEC("tracepoint/ext4/trim_all_free")
 int tp_ext4_trim_all_free(struct tp_ext4_trim_all_free_t *ctx)
 {
 	struct ext4_trim_all_free_t event = {};
@@ -3535,7 +3535,7 @@ int tp_ext4_trim_all_free(struct tp_ext4_trim_all_free_t *ctx)
 
 // Implementation for tp_ext4_trim_extent
 
-SEC("racepoint/ext4/trim_extent")
+SEC("tracepoint/ext4/trim_extent")
 int tp_ext4_trim_extent(struct tp_ext4_trim_extent_t *ctx)
 {
 	struct ext4_trim_extent_t event = {};
@@ -3557,7 +3557,7 @@ int tp_ext4_trim_extent(struct tp_ext4_trim_extent_t *ctx)
 
 // Implementation for tp_ext4_truncate_enter
 
-SEC("racepoint/ext4/truncate_enter")
+SEC("tracepoint/ext4/truncate_enter")
 int tp_ext4_truncate_enter(struct tp_ext4_truncate_enter_t *ctx)
 {
 	struct ext4_truncate_enter_t event = {};
@@ -3577,7 +3577,7 @@ int tp_ext4_truncate_enter(struct tp_ext4_truncate_enter_t *ctx)
 
 // Implementation for tp_ext4_truncate_exit
 
-SEC("racepoint/ext4/truncate_exit")
+SEC("tracepoint/ext4/truncate_exit")
 int tp_ext4_truncate_exit(struct tp_ext4_truncate_exit_t *ctx)
 {
 	struct ext4_truncate_exit_t event = {};
@@ -3597,7 +3597,7 @@ int tp_ext4_truncate_exit(struct tp_ext4_truncate_exit_t *ctx)
 
 // Implementation for tp_ext4_unlink_enter
 
-SEC("racepoint/ext4/unlink_enter")
+SEC("tracepoint/ext4/unlink_enter")
 int tp_ext4_unlink_enter(struct tp_ext4_unlink_enter_t *ctx)
 {
 	struct ext4_unlink_enter_t event = {};
@@ -3618,7 +3618,7 @@ int tp_ext4_unlink_enter(struct tp_ext4_unlink_enter_t *ctx)
 
 // Implementation for tp_ext4_unlink_exit
 
-SEC("racepoint/ext4/unlink_exit")
+SEC("tracepoint/ext4/unlink_exit")
 int tp_ext4_unlink_exit(struct tp_ext4_unlink_exit_t *ctx)
 {
 	struct ext4_unlink_exit_t event = {};
@@ -3638,7 +3638,7 @@ int tp_ext4_unlink_exit(struct tp_ext4_unlink_exit_t *ctx)
 
 // Implementation for tp_ext4_update_sb
 
-SEC("racepoint/ext4/update_sb")
+SEC("tracepoint/ext4/update_sb")
 int tp_ext4_update_sb(struct tp_ext4_update_sb_t *ctx)
 {
 	struct ext4_update_sb_t event = {};
@@ -3658,7 +3658,7 @@ int tp_ext4_update_sb(struct tp_ext4_update_sb_t *ctx)
 
 // Implementation for tp_ext4_write_begin
 
-SEC("racepoint/ext4/write_begin")
+SEC("tracepoint/ext4/write_begin")
 int tp_ext4_write_begin(struct tp_ext4_write_begin_t *ctx)
 {
 	struct ext4_write_begin_t event = {};
@@ -3679,7 +3679,7 @@ int tp_ext4_write_begin(struct tp_ext4_write_begin_t *ctx)
 
 // Implementation for tp_ext4_write_end
 
-SEC("racepoint/ext4/write_end")
+SEC("tracepoint/ext4/write_end")
 int tp_ext4_write_end(struct tp_ext4_write_end_t *ctx)
 {
 	struct ext4_write_end_t event = {};
@@ -3701,7 +3701,7 @@ int tp_ext4_write_end(struct tp_ext4_write_end_t *ctx)
 
 // Implementation for tp_ext4_writepages
 
-SEC("racepoint/ext4/writepages")
+SEC("tracepoint/ext4/writepages")
 int tp_ext4_writepages(struct tp_ext4_writepages_t *ctx)
 {
 	struct ext4_writepages_t event = {};
@@ -3728,7 +3728,7 @@ int tp_ext4_writepages(struct tp_ext4_writepages_t *ctx)
 
 // Implementation for tp_ext4_writepages_result
 
-SEC("racepoint/ext4/writepages_result")
+SEC("tracepoint/ext4/writepages_result")
 int tp_ext4_writepages_result(struct tp_ext4_writepages_result_t *ctx)
 {
 	struct ext4_writepages_result_t event = {};
@@ -3752,7 +3752,7 @@ int tp_ext4_writepages_result(struct tp_ext4_writepages_result_t *ctx)
 
 // Implementation for tp_ext4_zero_range
 
-SEC("racepoint/ext4/zero_range")
+SEC("tracepoint/ext4/zero_range")
 int tp_ext4_zero_range(struct tp_ext4_zero_range_t *ctx)
 {
 	struct ext4_zero_range_t event = {};
