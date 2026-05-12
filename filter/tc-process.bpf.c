@@ -327,9 +327,8 @@ parse_sk_buff(struct sk_buff *skb, __u8 direction, struct net_group *tuple)
 		}
 		else
 		{ // INGRESS
-			// no need to convert
-			tuple->ip = (iph->daddr);
-			tuple->port = (udph->dest);
+			tuple->ip = bpf_ntohl(iph->daddr);
+			tuple->port = bpf_ntohs(udph->dest);
 		}
 	}
 	else if (iph->protocol == IPPROTO_TCP)
@@ -432,13 +431,13 @@ int BPF_KPROBE(security_socket_recvmsg, struct socket *sock, struct msghdr *msg)
 			__u32 *local_ip = bpf_map_lookup_elem(&local_ip_map, &key);
 			if (local_ip)
 			{
-				daddr = bpf_ntohl(*local_ip);
+				daddr = *local_ip;
 			}
 		}
 
 		struct net_group key = {};
 		key.ip = bpf_ntohl(daddr);
-		key.port = bpf_ntohs(dport);
+		key.port = dport;
 		key.protocol = IPPROTO_UDP;
 
 		struct ProcInfo proc = {};
@@ -457,7 +456,7 @@ int BPF_KPROBE(security_socket_recvmsg, struct socket *sock, struct msghdr *msg)
 
 		e->proc = proc;
 		e->net.ip = bpf_ntohl(daddr);
-		e->net.port = bpf_ntohs(dport);
+		e->net.port = dport;
 		e->net.protocol = IPPROTO_UDP;
 		e->flag = IP_AND_PORT;
 		e->timestamp = bpf_ktime_get_ns();
