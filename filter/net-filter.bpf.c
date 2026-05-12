@@ -474,6 +474,7 @@ static bool parse_sk_buff(struct sk_buff *skb, struct BpfData *log)
 		log->tuple.sport = icmph->un.echo.id;
 		log->tuple.dport = icmph->un.echo.id;
 		debug_tuple(&log->tuple, "NF-ICMP", DEBUG_NF_ICMP_PKG);
+		break;
 	case IPPROTO_ICMPV6:
 		icmp6h = icmp6_hdr(skb, iphl);
 		if (icmp6h == NULL)
@@ -868,6 +869,7 @@ static bool parse_sock(struct socket *sock, struct BpfData *log)
 		break;
 	case IPPROTO_ICMP:
 		debug_tuple(&log->tuple, "LSM-ICMP", DEBUG_LSM_ICMP_PKG);
+		break;
 	case IPPROTO_ICMPV6:
 		debug_tuple(&log->tuple, "LSM-ICMPv6", DEBUG_LSM_ICMP_PKG);
 		break;
