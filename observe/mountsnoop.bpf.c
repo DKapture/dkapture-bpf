@@ -691,13 +691,10 @@ static void save_umount_args(struct syscall_trace_enter *ctx)
 {
 	long ret;
 	const char __user *target;
-	unsigned int flags = 0;
+	unsigned int flags;
 
 	target = (const char *)ctx->args[0];
-	if (ctx->nr == 2)
-	{
-		flags = (unsigned int)ctx->args[1];
-	}
+	flags = (unsigned int)ctx->args[1];
 
 	pid_t pid = bpf_get_current_pid_tgid();
 	ret = bpf_map_update_elem(&umount_map, &pid, &zero_map_item, BPF_ANY);
@@ -711,7 +708,7 @@ static void save_umount_args(struct syscall_trace_enter *ctx)
 	args = bpf_map_lookup_elem(&umount_map, &pid);
 	if (!args)
 	{
-		bpf_err("bpf_map_update_elem fail: %ld", ret);
+		bpf_err("bpf_map_lookup_elem fail: %ld", ret);
 		return;
 	}
 	bpf_read_ustr(args->target, sizeof(args->target), target);
@@ -727,7 +724,7 @@ static void save_umount_ret(int ret)
 	args = bpf_map_lookup_elem(&umount_map, &pid);
 	if (!args)
 	{
-		bpf_err("bpf_map_update_elem fail: %ld", ret);
+		bpf_err("bpf_map_lookup_elem fail: %ld", ret);
 		return;
 	}
 	args->ret = ret;
