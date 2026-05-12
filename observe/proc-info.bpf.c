@@ -839,10 +839,6 @@ int dump_task(struct bpf_iter__task *ctx)
 	{
 		return 1;
 	}
-	if (dump_proc_loginuid(task))
-	{
-		return 1;
-	}
 	DEBUG(0, "dump_task: %d %s", task->pid, task->comm);
 
 	return 0;
