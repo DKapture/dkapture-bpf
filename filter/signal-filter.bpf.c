@@ -319,7 +319,7 @@ int BPF_PROG(
 	u32 target_pid = p->pid;
 	u32 sender_pid = bpf_get_current_pid_tgid() >> 32;
 	u64 uid_gid = bpf_get_current_uid_gid();
-	u32 sender_uid = uid_gid >> 32; // Get UID from the high 32 bits
+	u32 sender_uid = uid_gid & 0xffffffff; // UID is stored in the low 32 bits
 
 	// Check rule filter mode
 	if (should_intercept_signal_by_rule(
