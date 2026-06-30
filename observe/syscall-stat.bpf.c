@@ -188,7 +188,6 @@ int BPF_PROG(
 	bprm_execve,
 	struct linux_binprm *bprm,
 	int fd,
-	struct filename *filename,
 	int flags
 )
 { // used for creating map from pid to pathhash
@@ -223,7 +222,15 @@ int BPF_PROG(
 		return 0;
 	}
 
-	ret = bpf_probe_read_kernel_str(path, 4096, &filename->iname);
+	const char *filename;
+	ret = bpf_probe_read_kernel(&filename, sizeof(filename), &bprm->filename);
+	if (ret)
+	{
+			bpf_printk("fail to read bprm filename ptr: %ld", ret);
+			goto exit;
+	}
+	ret = bpf_probe_read_kernel_str(path, 4096, filename);
+
 	if (ret <= 0)
 	{
 		bpf_printk("fail to read kernel space string: %ld", ret);
