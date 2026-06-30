@@ -48,6 +48,11 @@ struct shoot
 	u64 time;
 };
 
+struct exec_args
+{
+	pHash pathhash;
+};
+
 struct
 {
 	__uint(type, BPF_MAP_TYPE_HASH);
@@ -79,6 +84,14 @@ struct
 	__type(value, pHash);
 	__uint(max_entries, 1024);
 } pid2pathhash SEC(".maps");
+
+struct
+{
+	__uint(type, BPF_MAP_TYPE_LRU_HASH);
+	__type(key, pid_t);
+	__type(value, struct exec_args);
+	__uint(max_entries, 1024);
+} exec_args_map SEC(".maps");
 
 // Function to retrieve the filtering rule
 static struct Rule *get_rule(void)
@@ -160,6 +173,7 @@ int BPF_PROG(exit_sys_call, const struct pt_regs *regs, long ret)
 	filter_debug_proc(0, "test");
 	struct info *snr;
 	struct shoot *shoot;
+	long err;
 	shoot = (struct shoot *)bpf_map_lookup_elem(&shoot_cache, &regs);
 	if (!shoot)
 	{
@@ -170,7 +184,7 @@ int BPF_PROG(exit_sys_call, const struct pt_regs *regs, long ret)
 	if (!snr)
 	{
 		bpf_err("fail to lookup syscall info: %d", shoot->nr);
-		return 0;
+		goto exit;
 	}
 
 	u64 d_time = bpf_ktime_get_ns() - shoot->time;
@@ -180,22 +194,30 @@ int BPF_PROG(exit_sys_call, const struct pt_regs *regs, long ret)
 	{
 		__sync_fetch_and_add(&snr->ret, 1);
 	}
+
+exit:
+	err = bpf_map_delete_elem(&shoot_cache, &regs);
+	if (err)
+	{
+		DEBUG(0, "shoot_cache map delete fail: %ld", err);
+	}
 	return 0;
 }
 
-SEC("fexit/bprm_execve")
-int BPF_PROG(
-	bprm_execve,
+SEC("kprobe/bprm_execve")
+int BPF_KPROBE(
+	bprm_execve_enter,
 	struct linux_binprm *bprm,
 	int fd,
 	struct filename *filename,
 	int flags
 )
-{ // used for creating map from pid to pathhash
-	long ret = 0;
-	pid_t pid;
+{
 	struct Rule *rule;
-	u32 *buf;
+	struct exec_args args = {};
+	pid_t pid;
+	long ret;
+	const char *path_ptr;
 
 	rule = get_rule();
 	if (!rule)
@@ -223,14 +245,69 @@ int BPF_PROG(
 		return 0;
 	}
 
-	ret = bpf_probe_read_kernel_str(path, 4096, &filename->iname);
+	ret = bpf_probe_read_kernel(&path_ptr, sizeof(path_ptr), &bprm->filename);
+	if (ret)
+	{
+		bpf_printk("fail to read bprm filename ptr: %ld", ret);
+		goto exit;
+	}
+
+	ret = bpf_probe_read_kernel_str(path, 4096, path_ptr);
 	if (ret <= 0)
 	{
 		bpf_printk("fail to read kernel space string: %ld", ret);
 		goto exit;
 	}
 
-	pHash pathhash = jhash(path, 4096, 0);
+	args.pathhash = jhash(path, 4096, 0);
+	pid = bpf_get_current_pid_tgid();
+	ret = bpf_map_update_elem(&exec_args_map, &pid, &args, BPF_ANY);
+	if (ret)
+	{
+		bpf_printk("fail to update exec_args_map: %ld", ret);
+	}
+
+exit:
+	free_page(0);
+	return 0;
+}
+
+SEC("kretprobe/bprm_execve")
+int BPF_KRETPROBE(bprm_execve_ret, int _ret)
+{ // used for creating map from pid to pathhash
+	long ret = 0;
+	pid_t pid;
+	struct Rule *rule;
+	u32 *buf;
+	struct exec_args *args;
+
+	rule = get_rule();
+	if (!rule)
+	{
+		DEBUG(0, "no filter rule specified");
+		return 0;
+	}
+
+	if (rule->pid > 0)
+	{ // pid used first, pathhash ignored
+		DEBUG(0, "pid used first, pathhash ignored");
+		return 0;
+	}
+
+	if (rule->pathhash == 0)
+	{
+		DEBUG(0, "pathhash not set in rule");
+		return 0;
+	}
+
+	pid = bpf_get_current_pid_tgid();
+	args = bpf_map_lookup_elem(&exec_args_map, &pid);
+	if (!args)
+	{
+		return 0;
+	}
+
+	pHash pathhash = args->pathhash;
 	if (pathhash != rule->pathhash)
 	{
 		DEBUG(
@@ -243,8 +320,7 @@ int BPF_PROG(
 		goto exit;
 	}
 
-	pid = bpf_get_current_pid_tgid();
-	ret = bpf_map_update_elem(&pid2pathhash, &pid, path, BPF_ANY);
+	ret = bpf_map_update_elem(&pid2pathhash, &pid, &pathhash, BPF_ANY);
 	if (ret)
 	{
 		bpf_printk("fail to update map pid2pathhash: %ld", ret);
@@ -261,7 +337,7 @@ int BPF_PROG(
 	*buf = pathhash;
 
 exit:
-	free_page(0);
+	bpf_map_delete_elem(&exec_args_map, &pid);
 	if (ret)
 	{
 		bpf_map_delete_elem(&pid2pathhash, &pid);
