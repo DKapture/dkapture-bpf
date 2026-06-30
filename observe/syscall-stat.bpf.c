@@ -183,19 +183,14 @@ int BPF_PROG(exit_sys_call, const struct pt_regs *regs, long ret)
 	return 0;
 }
 
-SEC("fexit/bprm_execve")
-int BPF_PROG(
-	bprm_execve,
-	struct linux_binprm *bprm,
-	int fd,
-	struct filename *filename,
-	int flags
-)
-{ // used for creating map from pid to pathhash
+SEC("tp/sched/sched_process_exec")
+int handle_sched_process_exec(struct trace_event_raw_sched_process_exec *ctx)
+{ // used for creating map from pid to pathhash after a successful exec
 	long ret = 0;
-	pid_t pid;
+	pid_t pid = ctx->pid;
 	struct Rule *rule;
 	u32 *buf;
+	void *filename_ptr;
 
 	rule = get_rule();
 	if (!rule)
@@ -223,7 +218,8 @@ int BPF_PROG(
 		return 0;
 	}
 
-	ret = bpf_probe_read_kernel_str(path, 4096, &filename->iname);
+	filename_ptr = (void *)ctx + (ctx->__data_loc_filename & 0xffff);
+	ret = bpf_probe_read_kernel_str(path, 4096, filename_ptr);
 	if (ret <= 0)
 	{
 		bpf_printk("fail to read kernel space string: %ld", ret);
@@ -243,8 +239,7 @@ int BPF_PROG(
 		goto exit;
 	}
 
-	pid = bpf_get_current_pid_tgid();
-	ret = bpf_map_update_elem(&pid2pathhash, &pid, path, BPF_ANY);
+	ret = bpf_map_update_elem(&pid2pathhash, &pid, &pathhash, BPF_ANY);
 	if (ret)
 	{
 		bpf_printk("fail to update map pid2pathhash: %ld", ret);
@@ -270,10 +265,9 @@ exit:
 	return 0;
 }
 
-SEC("fentry/exit_thread")
-int BPF_PROG(exit_thread, struct task_struct *tsk)
+SEC("tp/sched/sched_process_exit")
+int handle_sched_process_exit(struct trace_event_raw_sched_process_template *ctx)
 {
-	long ret;
 	pid_t pid;
 	struct Rule *rule;
 	pHash *pathhash;
@@ -317,14 +311,8 @@ int BPF_PROG(exit_thread, struct task_struct *tsk)
 		return 0;
 	}
 
-	ret = bpf_probe_read_kernel(&pid, sizeof(pid), &tsk->pid);
-	if (ret)
-	{
-		bpf_printk("fail to read pid: %d", ret);
-		return 0;
-	}
-
-	ret = bpf_map_delete_elem(&pid2pathhash, &pid);
+	pid = ctx->pid;
+	long ret = bpf_map_delete_elem(&pid2pathhash, &pid);
 	if (ret)
 	{
 		bpf_printk("fail to delete pid2pathhash: %d", ret);
