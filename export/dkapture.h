@@ -50,6 +50,8 @@ class DKapture
 		PROC_PID_sock,		// /proc/<pid>/sock
 		PROC_PID_NS,		// /proc/<pid>/ns
 		PROC_PID_LOGINUID,	// /proc/<pid>/loginuid
+		PROC_CGROUP,		// cgroup v2 hierarchy snapshot
+		PROC_CGROUP_SUBSYS, // cgroup subsystem bit mapping
 		PROC_END,
 		// 待扩展
 	};
@@ -463,6 +465,31 @@ struct ProcPidLoginuid
 	{
 		uid_t val;
 	} loginuid;
+};
+
+struct ProcCgroup
+{
+	unsigned long long id;
+	unsigned long long parent_id;
+	int level;
+	int max_depth;
+	int nr_descendants;
+	int nr_dying_descendants;
+	int max_descendants;
+	int nr_populated_csets;
+	int nr_populated_domain_children;
+	int nr_populated_threaded_children;
+	int nr_threaded_children;
+	unsigned short controller;
+	unsigned short subtree_control;
+	unsigned long flags;
+	char name[];
+};
+
+struct ProcCgroupSubsys
+{
+	unsigned int index;
+	char name[];
 };
 
 /**
