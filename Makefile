@@ -3,22 +3,39 @@
 # SPDX-License-Identifier: LGPL-2.1
 
 BUILD_DIR = build
-TARGETs = include observe filter policy
+TARGETs = include tools observe filter policy
 SUBTARGETs = $(foreach i,$(TARGETs),$(i)/%)
-MAKE = make PROJ_ROOT=$(shell pwd)
+KHEADERS_DIR ?= /lib/modules/$(shell uname -r)/build/include
+PWD = $(shell pwd)
+
+BPF_TARGET_ARCH := $(shell uname -m)
+ifeq ($(BPF_TARGET_ARCH), loongarch64)
+	BPF_TARGET_ARCH := loongarch
+endif
+
+BPF_PREPROCESS ?= $(PWD)/build/tools/extern-prep
+
+MAKE_FLAGS += "PROJ_ROOT=$(PWD)"
+MAKE_FLAGS += "BPF_TARGET_ARCH=$(BPF_TARGET_ARCH)"
+MAKE_FLAGS += "BPF_PREPROCESS=$(BPF_PREPROCESS)"
+MAKE_FLAGS += "KHEADERS_DIR=$(KHEADERS_DIR)"
+MAKE += $(MAKE_FLAGS)
 
 .PHONY: all clean distclean pseudo $(TARGETs)
 .SUFFIXES:
 
 all: $(TARGETs)
 
-observe filter policy: include
+observe filter policy: include tools
 
 $(TARGETs):
 	$(MAKE) -C $@
 
-$(SUBTARGETs): pseudo
-	$(MAKE)  $* -C $(shell dirname $@)
+$(SUBTARGETs): pseudo | $(BPF_PREPROCESS)
+	$(MAKE) $* -C $(shell dirname $@)
+
+$(BPF_PREPROCESS): 
+	$(MAKE) -C $(PWD)/tools $@
 
 pseudo:
 
