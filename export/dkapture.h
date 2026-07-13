@@ -48,6 +48,7 @@ class DKapture
 		PROC_PID_EXE,		// /proc/<pid>/exe
 		PROC_PID_MAPS,		// /proc/<pid>/maps
 		PROC_PID_sock,		// /proc/<pid>/sock
+		PROC_SOCK_INFO,		// socket snapshot entry
 		PROC_PID_NS,		// /proc/<pid>/ns
 		PROC_PID_LOGINUID,	// /proc/<pid>/loginuid
 		PROC_END,
@@ -568,6 +569,57 @@ struct ProcPidSock
 	};
 	short lport; // 本地端口
 	short rport; // 远端端口
+};
+
+enum ProcSockLogType
+{
+	PROC_SOCK_LOG_UNIX,
+	PROC_SOCK_LOG_UDP_IPV4,
+	PROC_SOCK_LOG_UDP_IPV6,
+	PROC_SOCK_LOG_TCP_IPV4,
+	PROC_SOCK_LOG_TCP_IPV6,
+};
+
+struct ProcSockInfo
+{
+	unsigned int log_type;
+	union
+	{
+		unsigned int lip;
+		struct in6_addr lipv6;
+	};
+	union
+	{
+		unsigned int rip;
+		struct in6_addr ripv6;
+	};
+	unsigned short lport;
+	unsigned short rport;
+	int state;
+	unsigned int tx_queue;
+	unsigned int rx_queue;
+	union
+	{
+		unsigned short sk_type;
+		int tr;
+	};
+	unsigned char retrnsmt;
+	unsigned char timeout;
+	unsigned int uid;
+	char sk_addr[18];
+	unsigned long long tm_when;
+	unsigned long long ino;
+	unsigned long long icsk_rto;
+	unsigned long long icsk_ack;
+	unsigned int bit_flags;
+	unsigned int snd_cwnd;
+	unsigned int sk_ref;
+	union
+	{
+		int plen;
+		int ssthresh;
+	};
+	char path[];
 };
 
 #ifndef __bpf__
