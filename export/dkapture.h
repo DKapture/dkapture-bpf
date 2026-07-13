@@ -18,6 +18,7 @@
 
 #define TASK_COMM_LEN 16
 struct FileLog;
+struct PeekFdRule;
 
 class DKapture
 {
@@ -115,6 +116,14 @@ class DKapture
 
 #ifndef __bpf__
 	typedef int (*DKCallback)(void *ctx, const void *data, size_t data_sz);
+
+	struct PeekFdRule
+	{
+		pid_t pid;
+		int fd;
+		int rw;
+		bool sock;
+	};
 
 	/**
 	 * @brief 初始化 DKapture 实例，内部会申请各种必要资源并完成初始化
@@ -299,6 +308,18 @@ class DKapture
 	 * @return 成功返回 0，失败返回 -errno
 	 */
 	virtual int file_watch(const char *path, DKCallback cb, void *ctx) = 0;
+
+	/**
+	 * @brief 监控指定进程 fd 的读写内容
+	 * @param rule 监控规则，必须指定 pid/fd，并至少设置一个 rw 标志位
+	 * @param cb 回调函数。data 指向工具原始事件结构：
+	 *        struct { ssize_t sz; char buf[]; }
+	 *        将 cb 设为 null 可取消当前 fd 监控。
+	 *        注意：回调异步执行，不需要监控时请主动注销。
+	 * @param ctx 用户上下文
+	 * @return 成功返回 0，失败返回 -errno
+	 */
+	virtual int fd_watch(const PeekFdRule *rule, DKCallback cb, void *ctx) = 0;
 
 	/**
 	 * @brief 文件系统事件监控
