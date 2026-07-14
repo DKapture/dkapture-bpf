@@ -18,6 +18,8 @@
 
 #define TASK_COMM_LEN 16
 struct FileLog;
+struct PeekFdRule;
+struct FileWatchRule;
 
 class DKapture
 {
@@ -115,6 +117,21 @@ class DKapture
 
 #ifndef __bpf__
 	typedef int (*DKCallback)(void *ctx, const void *data, size_t data_sz);
+
+	struct PeekFdRule
+	{
+		pid_t pid;
+		int fd;
+		int rw;
+		bool sock;
+	};
+
+	struct FileWatchRule
+	{
+		const char *path;
+		bool use_inode;
+		dev_t dev;
+	};
 
 	/**
 	 * @brief 初始化 DKapture 实例，内部会申请各种必要资源并完成初始化
@@ -275,7 +292,18 @@ class DKapture
 	 */
 	virtual int kmemleak_scan_start(pid_t pid, DKCallback cb, void *ctx) = 0;
 	virtual int kmemleak_scan_stop(void) = 0;
-
+	
+	/**
+	 * @brief 监控指定文件的事件
+	 * @param rule 监控规则。path 必填；use_inode=true 时按 path 当前 inode +
+	 *        dev 过滤，否则按 path 精确路径过滤。
+	 * @param cb 回调函数，data 可强转为 FileLog* 及其派生结构。
+	 *        将 cb 设为 null 可取消当前 file watcher。
+	 * @param ctx 用户上下文
+	 * @return 成功返回 0，失败返回 -errno
+	 */
+	virtual int file_watch(const FileWatchRule *rule, DKCallback cb, void *ctx) = 0;
+	
 	/**
 	 * @brief 监控指定路径的文件事件
 	 * @param path 目标文件路径，必须是绝对路径，目前不支持目录
@@ -299,7 +327,6 @@ class DKapture
 	 * @return 成功返回 0，失败返回 -errno
 	 */
 	virtual int file_watch(const char *path, DKCallback cb, void *ctx) = 0;
-
 	/**
 	 * @brief 文件系统事件监控
 	 * @param path 挂载点路径，或文件系统所在分区设备路径
