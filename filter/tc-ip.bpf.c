@@ -18,7 +18,9 @@
 
 char __license[] SEC("license") = "GPL";
 
-#define DEBUG_ON 1
+#ifndef DEBUG_ON
+#define DEBUG_ON 0
+#endif
 
 #define ETH_P_IP 0x0800
 #define IPPROTO_TCP 6
