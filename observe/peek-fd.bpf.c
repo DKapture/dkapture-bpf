@@ -890,7 +890,7 @@ save_mmsg_args(long fd, struct mmsghdr *msg, unsigned long vlen, long rw)
 	struct Args args;
 	args.fd = fd;
 	args.msg = msg;
-	args.vlen = vlen;
+	args.mvlen = vlen;
 	ret = bpf_map_update_elem(&args_map, &pid, &args, BPF_ANY);
 	if (ret)
 	{
