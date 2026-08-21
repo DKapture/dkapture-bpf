@@ -23,7 +23,7 @@ char _license[] SEC("license") = "GPL";
 struct
 {
 	__uint(type, BPF_MAP_TYPE_RINGBUF);
-	__uint(max_entries, 4 * 1024 * 1024); // 2M
+	__uint(max_entries, 4 * 1024 * 1024); // 4M
 } output SEC(".maps");
 
 #define _NSIG 64
@@ -51,7 +51,7 @@ static void collect_sigign_sigcatch(
 		}
 		else if (k->sa.sa_handler != SIG_DFL)
 		{
-			sigign->sig[0] |= 1UL << (i - 1);
+			sigcatch->sig[0] |= 1UL << (i - 1);
 		}
 	}
 }
@@ -200,11 +200,11 @@ int dump_task(struct bpf_iter__task *ctx)
 
 	dtask->size = BPF_CORE_READ(task, mm, total_vm);
 
-	dtask->resident =
-		dtask->shared + BPF_CORE_READ(task, mm, rss_stat)[MM_ANONPAGES].count;
-
 	dtask->shared = BPF_CORE_READ(task, mm, rss_stat)[MM_FILEPAGES].count +
 					BPF_CORE_READ(task, mm, rss_stat)[MM_SHMEMPAGES].count;
+
+	dtask->resident =
+		dtask->shared + BPF_CORE_READ(task, mm, rss_stat)[MM_ANONPAGES].count;
 
 	dtask->text = (PAGE_ALIGN(BPF_CORE_READ(task, mm, end_data)) -
 				   (BPF_CORE_READ(task, mm, start_data) & PAGE_MASK)) >>
