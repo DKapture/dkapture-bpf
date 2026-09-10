@@ -34,7 +34,7 @@ struct Rule
 {
 	u32 remote_ip;
 	u16 remote_port;
-	u16 dir;
+	short dir;
 	union
 	{
 		struct
@@ -133,6 +133,7 @@ static int traffic_stat(struct socket *sock, int ret, int dir)
 	struct BpfData *log;
 	u32 dst_addr;
 	u32 src_addr;
+	char comm[16];
 	u32 traffic = ret;
 	if (ret < 0)
 	{
@@ -181,6 +182,12 @@ static int traffic_stat(struct socket *sock, int ret, int dir)
 		return 0;
 	}
 
+	ret = bpf_get_current_comm(comm, sizeof(comm));
+	if (ret)
+	{
+		bpf_printk("fail to get current comm: %d", ret);
+		return 0;
+	}
 	u32 lkey = __LINE__;
 	log = (typeof(log))malloc_page(lkey);
 	if (!log)
@@ -193,13 +200,7 @@ static int traffic_stat(struct socket *sock, int ret, int dir)
 	log->remote_port = bpf_ntohs(skc_dport);
 	log->pid = bpf_get_current_pid_tgid();
 	log->dir = dir;
-
-	ret = bpf_get_current_comm(log->comm, 16);
-	if (ret < 0)
-	{
-		bpf_printk("fail to get current comm: %d", ret);
-		goto exit;
-	}
+	__builtin_memcpy(log->comm, comm, sizeof(comm));
 
 	if (!rule_filter(log))
 	{
@@ -207,7 +208,7 @@ static int traffic_stat(struct socket *sock, int ret, int dir)
 		goto exit;
 	}
 
-	ret = bpf_ringbuf_output(&logs, log, sizeof(*log) + 16, 0);
+	ret = bpf_ringbuf_output(&logs, log, sizeof(*log) + sizeof(comm), 0);
 	if (ret != 0)
 	{
 		bpf_err("bpf_map_push_elem: %d\n", ret);
