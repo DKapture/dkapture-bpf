@@ -158,6 +158,7 @@ SEC("tp_btf/sys_exit")
 int BPF_PROG(exit_sys_call, const struct pt_regs *regs, long ret)
 {
 	filter_debug_proc(0, "test");
+	long err;
 	struct info *snr;
 	struct shoot *shoot;
 	shoot = (struct shoot *)bpf_map_lookup_elem(&shoot_cache, &regs);
@@ -170,7 +171,7 @@ int BPF_PROG(exit_sys_call, const struct pt_regs *regs, long ret)
 	if (!snr)
 	{
 		bpf_err("fail to lookup syscall info: %d", shoot->nr);
-		return 0;
+		goto exit;
 	}
 
 	u64 d_time = bpf_ktime_get_ns() - shoot->time;
@@ -179,6 +180,13 @@ int BPF_PROG(exit_sys_call, const struct pt_regs *regs, long ret)
 	if (ret < 0)
 	{
 		__sync_fetch_and_add(&snr->ret, 1);
+	}
+
+exit:
+	err = bpf_map_delete_elem(&shoot_cache, &regs);
+	if (err)
+	{
+		DEBUG(0, "shoot_cache map delete fail: %ld", err);
 	}
 	return 0;
 }
