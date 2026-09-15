@@ -202,7 +202,6 @@ int BPF_PROG(
 	long ret = 0;
 	pid_t pid;
 	struct Rule *rule;
-	u32 *buf;
 
 	rule = get_rule();
 	if (!rule)
@@ -259,21 +258,12 @@ int BPF_PROG(
 	}
 
 	pid = bpf_get_current_pid_tgid();
-	ret = bpf_map_update_elem(&pid2pathhash, &pid, path, BPF_ANY);
+	ret = bpf_map_update_elem(&pid2pathhash, &pid, &pathhash, BPF_ANY);
 	if (ret)
 	{
 		bpf_printk("fail to update map pid2pathhash: %ld", ret);
 		goto exit;
 	}
-
-	buf = bpf_map_lookup_elem(&pid2pathhash, &pid);
-	if (!buf)
-	{
-		bpf_printk("fail to lookup pathhash for pid: %d", pid);
-		goto exit;
-	}
-
-	*buf = pathhash;
 
 exit:
 	free_page(0);
