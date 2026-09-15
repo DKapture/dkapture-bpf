@@ -674,7 +674,6 @@ static bool thread_exit_filter(void)
  *
  * @param bprm 二进制程序参数结构
  * @param fd 文件描述符
- * @param filename 文件名结构
  * @param flags 标志位
  * @return 总是返回0
  */
@@ -683,7 +682,6 @@ int BPF_PROG(
 	bprm_execve,
 	struct linux_binprm *bprm,
 	int fd,
-	struct filename *filename,
 	int flags
 )
 {
@@ -698,9 +696,16 @@ int BPF_PROG(
 		bpf_printk("error: malloc_page");
 		return 0;
 	}
+	char* filename = NULL;
+	ret = bpf_probe_read_kernel(&filename, sizeof(filename), &bprm->filename);
+	if (ret)
+    {
+        bpf_printk("error: read bprm filename ptr: %ld", ret);
+        goto exit;
+    }
 
-	ret = bpf_probe_read_kernel(filepath, 4096, filename->iname);
-	if (ret < 0)
+	ret = bpf_probe_read_kernel_str(filepath, 4096, filename);
+	if (ret <= 0)
 	{
 		bpf_printk("error: bpf_probe_read_kernel_str: %ld", ret);
 		goto exit;
