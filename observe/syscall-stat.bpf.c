@@ -200,7 +200,7 @@ int BPF_PROG(
 )
 { // used for creating map from pid to pathhash
 	long ret = 0;
-	pid_t pid;
+	pid_t pid = 0;
 	struct Rule *rule;
 
 	rule = get_rule();
@@ -267,7 +267,7 @@ int BPF_PROG(
 
 exit:
 	free_page(0);
-	if (ret)
+	if (ret && pid)
 	{
 		bpf_map_delete_elem(&pid2pathhash, &pid);
 	}
