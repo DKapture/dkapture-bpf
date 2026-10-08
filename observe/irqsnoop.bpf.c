@@ -17,7 +17,7 @@ static struct irq_event_t zero = {};
 struct
 {
 	__uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);
-	__uint(max_entries, 1);
+	__uint(max_entries, 2);
 	__type(key, int);
 	__type(value, struct irq_event_t);
 } start SEC(".maps");
@@ -74,6 +74,10 @@ int softirq_exit(struct trace_event_raw_softirq *ctx)
 		bpf_err("bpf_map_lookup_elem err");
 		return 0;
 	}
+	if (!irq_event->delta)
+	{
+		return 0;
+	}
 	irq_event->delta = bpf_ktime_get_ns() - irq_event->delta;
 	pid_tgid = bpf_get_current_pid_tgid();
 	irq_event->pid = pid_tgid >> 32;
@@ -90,7 +94,7 @@ int softirq_exit(struct trace_event_raw_softirq *ctx)
 SEC("tracepoint/irq/irq_handler_entry")
 int irq_handler_entry(struct trace_event_raw_irq_handler_entry *ctx)
 {
-	int key = 0;
+	int key = 1;
 	long ret;
 	char *buf;
 	void *irq_name;
@@ -121,7 +125,7 @@ SEC("tracepoint/irq/irq_handler_exit")
 int irq_handler_exit(struct trace_event_raw_irq_handler_exit *ctx)
 {
 	long ret;
-	int key = 0;
+	int key = 1;
 	u64 pid_tgid;
 	struct irq_event_t *irq_event;
 	irq_event = bpf_map_lookup_elem(&start, &key);
@@ -129,6 +133,10 @@ int irq_handler_exit(struct trace_event_raw_irq_handler_exit *ctx)
 	{
 		bpf_err("bpf_map_lookup_elem err");
 		return 0;
+	}
+	if (!irq_event->delta)
+	{
+		return 0; /* no matched entry: threaded irq may migrate cpus */
 	}
 	irq_event->delta = bpf_ktime_get_ns() - irq_event->delta;
 	irq_event->ret = ctx->ret;
