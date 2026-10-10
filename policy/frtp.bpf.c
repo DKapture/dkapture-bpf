@@ -746,7 +746,7 @@ exit:
  * @param tsk 任务结构指针
  * @return 总是返回0
  */
-SEC("fentry/exit_thread")
+SEC("tp_btf/sched_process_exit")
 int BPF_PROG(exit_thread, struct task_struct *tsk)
 {
 	long ret = 0;
