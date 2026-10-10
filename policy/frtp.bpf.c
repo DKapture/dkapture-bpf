@@ -108,6 +108,7 @@ struct
 	__type(key, u32);				 /**< 键类型：规则ID */
 	__type(value, struct Rule);		 /**< 值类型：访问控制规则 */
 	__uint(max_entries, 400000);	 /**< 最大条目数 */
+	__uint(map_flags, BPF_F_NO_PREALLOC);	 /**< 关闭预分配，按需分配内存 */
 } filter SEC(".maps");
 
 /**
