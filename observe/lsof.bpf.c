@@ -93,7 +93,7 @@ static bool file_filter(struct file *file)
 	DEBUG(0, "%s %s", rule->path, path);
 	if (rule->not_inode)
 	{
-		if (strncmp(path, rule->path, PAGE_SIZE))
+		if (strncmp(path, rule->path, PATH_MAX))
 		{
 			goto exit;
 		}
