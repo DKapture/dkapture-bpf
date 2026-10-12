@@ -191,6 +191,18 @@ exit:
 	return 0;
 }
 
+#if defined(__loongarch__)
+/* loongarch kernels lack BPF trampoline support: fexit/fentry/lsm
+ * programs load but attach fails with -ENOTSUPP. This hook does not
+ * use the return value, so a kprobe at entry serves the same purpose. */
+SEC("kprobe/bprm_execve")
+int BPF_KPROBE(
+	bprm_execve,
+	struct linux_binprm *bprm,
+	int fd,
+	int flags
+)
+#else
 SEC("fexit/bprm_execve")
 int BPF_PROG(
 	bprm_execve,
@@ -198,6 +210,7 @@ int BPF_PROG(
 	int fd,
 	int flags
 )
+#endif
 { // used for creating map from pid to pathhash
 	long ret = 0;
 	pid_t pid;
