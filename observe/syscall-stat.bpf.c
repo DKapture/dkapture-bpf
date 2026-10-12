@@ -288,7 +288,7 @@ exit:
 	return 0;
 }
 
-SEC("fentry/exit_thread")
+SEC("tp_btf/sched_process_exit")
 int BPF_PROG(exit_thread, struct task_struct *tsk)
 {
 	long ret;
