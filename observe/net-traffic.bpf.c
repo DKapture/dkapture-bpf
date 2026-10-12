@@ -222,13 +222,6 @@ exit:
 	return 0;
 }
 
-SEC("fexit/__sock_sendmsg")
-int BPF_PROG(__sock_sendmsg, struct socket *sock, struct msghdr *msg, int ret)
-{
-	return traffic_stat(sock, ret, TRAFFIC_OUT);
-}
-
-// Alternatives for __sock_sendmsg START
 struct
 {
 	__uint(type, BPF_MAP_TYPE_HASH);
@@ -274,6 +267,184 @@ static void clean_sock(void)
 	}
 }
 
+#if defined(__loongarch__)
+/* loongarch kernels lack BPF trampoline support: fentry/fexit/lsm
+ * programs load but attach fails with -ENOTSUPP. All hooks are
+ * kprobe/kretprobe pairs here; program names match the x86 branch so
+ * the user-space fix_attach_point() selection works unchanged. The
+ * _entry probes for sock_sendmsg/sock_write_iter/____sys_sendmsg/
+ * sock_recvmsg stash hook arguments for their kretprobe counterpart and
+ * are always attached (the stash is keyed by tid and reused).
+ * Nested call chains (e.g. ____sys_sendmsg -> sock_sendmsg ->
+ * __sock_sendmsg) share the stash: the deepest kretprobe reads it
+ * first, so each packet is counted exactly once. */
+
+SEC("kprobe/sock_sendmsg")
+int BPF_KPROBE(sock_sendmsg_entry, struct socket *sock, struct msghdr *msg)
+{
+	save_sock(sock);
+	return 0;
+}
+
+SEC("kretprobe/sock_sendmsg")
+int BPF_KRETPROBE(sock_sendmsg, int ret)
+{
+	struct socket **psock;
+	struct socket *sock;
+
+	psock = (struct socket **)get_sock();
+	if (!psock)
+	{
+		return 0;
+	}
+	sock = *psock;
+	clean_sock();
+	return traffic_stat(sock, ret, TRAFFIC_OUT);
+}
+
+SEC("kretprobe/__sock_sendmsg")
+int BPF_KRETPROBE(__sock_sendmsg, int ret)
+{
+	struct socket **psock;
+	struct socket *sock;
+
+	psock = (struct socket **)get_sock();
+	if (!psock)
+	{
+		return 0;
+	}
+	sock = *psock;
+	clean_sock();
+	return traffic_stat(sock, ret, TRAFFIC_OUT);
+}
+
+SEC("kprobe/sock_write_iter")
+int BPF_KPROBE(sock_write_iter_entry, struct kiocb *iocb, struct iov_iter *from)
+{
+	struct file *file;
+	struct socket *sock;
+
+	file = BPF_CORE_READ(iocb, ki_filp);
+	sock = BPF_CORE_READ(file, private_data);
+	save_sock(sock);
+	return 0;
+}
+
+SEC("kretprobe/sock_write_iter")
+int BPF_KRETPROBE(sock_write_iter, int ret)
+{
+	struct socket **psock;
+	struct socket *sock;
+
+	psock = (struct socket **)get_sock();
+	if (!psock)
+	{
+		return 0;
+	}
+	sock = *psock;
+	clean_sock();
+	return traffic_stat(sock, ret, TRAFFIC_OUT);
+}
+
+SEC("kprobe/____sys_sendmsg")
+int BPF_KPROBE(
+	____sys_sendmsg_entry,
+	struct socket *sock,
+	struct msghdr *msg_sys,
+	unsigned int flags,
+	struct used_address *used_address,
+	unsigned int allowed_msghdr_flags
+)
+{
+	save_sock(sock);
+	return 0;
+}
+
+SEC("kretprobe/____sys_sendmsg")
+int BPF_KRETPROBE(____sys_sendmsg, int ret)
+{
+	struct socket **psock;
+	struct socket *sock;
+
+	psock = (struct socket **)get_sock();
+	if (!psock)
+	{
+		return 0;
+	}
+	sock = *psock;
+	clean_sock();
+	return traffic_stat(sock, ret, TRAFFIC_OUT);
+}
+
+SEC("kprobe/__sys_sendto")
+int BPF_KPROBE(__sys_sendto_entry)
+{
+	save_sock(NULL);
+	return 0;
+}
+
+SEC("kprobe/security_socket_sendmsg")
+int BPF_KPROBE(socket_sendmsg, struct socket *sock)
+{
+	struct socket **psock;
+
+	psock = (struct socket **)get_sock();
+	if (!psock)
+	{
+		return 0;
+	}
+	*psock = sock;
+	return 0;
+}
+
+SEC("kretprobe/__sys_sendto")
+int BPF_KRETPROBE(__sys_sendto_exit, int ret)
+{
+	struct socket **psock;
+	struct socket *sock;
+
+	psock = (struct socket **)get_sock();
+	if (!psock)
+	{
+		return 0;
+	}
+	sock = *psock;
+	clean_sock();
+	return traffic_stat(sock, ret, TRAFFIC_OUT);
+}
+
+SEC("kprobe/sock_recvmsg")
+int BPF_KPROBE(sock_recvmsg_entry, struct socket *sock, struct msghdr *msg, int flags)
+{
+	save_sock(sock);
+	return 0;
+}
+
+SEC("kretprobe/sock_recvmsg")
+int BPF_KRETPROBE(sock_recvmsg, int ret)
+{
+	struct socket **psock;
+	struct socket *sock;
+
+	psock = (struct socket **)get_sock();
+	if (!psock)
+	{
+		return 0;
+	}
+	sock = *psock;
+	clean_sock();
+	return traffic_stat(sock, ret, TRAFFIC_IN);
+}
+
+#elif defined(__x86_64__) || defined(__aarch64__)
+
+SEC("fexit/__sock_sendmsg")
+int BPF_PROG(__sock_sendmsg, struct socket *sock, struct msghdr *msg, int ret)
+{
+	return traffic_stat(sock, ret, TRAFFIC_OUT);
+}
+
+// Alternatives for __sock_sendmsg START
 SEC("fexit/sock_sendmsg")
 int BPF_PROG(sock_sendmsg, struct socket *sock, struct msghdr *msg, int ret)
 {
@@ -372,3 +543,4 @@ int BPF_PROG(
 {
 	return traffic_stat(sock, ret, TRAFFIC_IN);
 }
+#endif
