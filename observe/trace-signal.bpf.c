@@ -49,6 +49,14 @@ struct
 
 struct
 {
+	__uint(type, BPF_MAP_TYPE_HASH);
+	__type(key, u32);
+	__type(value, struct BpfData);
+	__uint(max_entries, 10240);
+} inflight SEC(".maps");
+
+struct
+{
 	__uint(type, BPF_MAP_TYPE_LRU_HASH);
 	__type(key, pid_t);
 	__type(value, u32);
@@ -142,34 +150,30 @@ struct TpExitKill
 	long ret;
 };
 
-static u32 lkey = __LINE__;
+/*static u32 lkey = __LINE__;*/
 SEC("tracepoint/syscalls/sys_enter_kill")
 int sys_enter_kill(struct TpEnterKill *ctx)
 {
 	long ret;
+	u32 tid;
+    struct BpfData log = {};
 	filter_debug_proc(0, "kill");
-	struct BpfData *log = (typeof(log))malloc_page(lkey);
-	if (!log)
-	{
-		return 0;
-	}
-	log->sender_pid = bpf_get_current_pid_tgid();
-	log->recv_pid = ctx->pid;
-	log->sig = ctx->sig;
-	ret = bpf_get_current_comm(log->sender_comm, sizeof(log->sender_comm));
+	tid = (u32)bpf_get_current_pid_tgid();
+    log.sender_pid = tid;
+    log.recv_pid = ctx->pid;
+    log.sig = ctx->sig;
+
+	ret = bpf_get_current_comm(log.sender_comm, sizeof(log.sender_comm));
 	if (ret)
 	{
 		bpf_err("fail to get current comm: %d", ret);
-		goto exit;
+		return 0;
 	}
-
-	return 0;
-
-exit:
-	if (log)
-	{
-		free_page(lkey);
-	}
+	ret = bpf_map_update_elem(&inflight, &tid, &log, BPF_ANY);
+        if (ret)
+        {
+                bpf_err("fail to update inflight: %ld", ret);
+        }
 	return 0;
 }
 
@@ -183,12 +187,15 @@ int BPF_PROG(
 	int ret
 )
 {
+	u32 tid;
+    struct BpfData *log;
 	if (ret)
 	{
 		return ret;
 	}
 
-	struct BpfData *log = (typeof(log))lookup_page(lkey);
+	 tid = (u32)bpf_get_current_pid_tgid();
+     log = bpf_map_lookup_elem(&inflight, &tid);
 	if (!log)
 	{
 		return 0;
@@ -207,8 +214,11 @@ SEC("tracepoint/syscalls/sys_exit_kill")
 int sys_exit_kill(struct TpExitKill *ctx)
 {
 	long ret;
+	u32 tid;
 	struct Rule *rule;
-	struct BpfData *log = (typeof(log))lookup_page(lkey);
+	struct BpfData *log;
+	tid = (u32)bpf_get_current_pid_tgid();
+    log = bpf_map_lookup_elem(&inflight, &tid);
 	if (!log)
 	{
 		return 0;
@@ -232,7 +242,11 @@ int sys_exit_kill(struct TpExitKill *ctx)
 	}
 
 exit:
-	free_page(lkey);
+	ret = bpf_map_delete_elem(&inflight, &tid);
+	if (ret)
+	{
+			bpf_err("fail to delete inflight: %ld", ret);
+	}
 	return 0;
 }
 
