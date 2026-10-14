@@ -64,7 +64,63 @@ struct page_fault_t
 	unsigned long ip;
 	unsigned long error_code;
 };
+/* Shared event filling for the fentry/kprobe variants (aarch64/loongarch);
+ * the x86 tracepoint variants fill inline. */
+static int fill_page_fault_event(struct pt_regs *ctx,
+				 struct page_fault_t *event,
+				 bool user_fault)
+{
+	long ret = 0;
+	int key = 0;
+	int stack_id = 0;
+	pid_t filter_pid = 0;
+	pid_t *p_filter_pid = 0;
+	pid_t pid;
+	u64 pid_tgid = bpf_get_current_pid_tgid();
 
+	pid = pid_tgid >> 32;
+	p_filter_pid = bpf_map_lookup_elem(&filter, &key);
+	if (!p_filter_pid)
+	{
+		bpf_err("bpf_map_lookup_elem failed for filter: %ld", pid_tgid);
+	}
+	else
+	{
+		filter_pid = *p_filter_pid;
+	}
+	if (filter_pid && filter_pid != pid)
+	{
+		DEBUG(0, "Skipping page fault for PID: %d", pid);
+		return 0;
+	}
+	event->pid = pid;
+	event->tid = pid_tgid & 0xFFFFFFFF;
+	ret = bpf_get_current_comm(event->comm, sizeof(event->comm));
+	if (ret)
+	{
+		bpf_err("bpf_get_current_comm failed: %ld", ret);
+	}
+	stack_id = bpf_get_stackid(
+		ctx,
+		&stack_traces,
+		skip_frame | (user_fault ? BPF_F_USER_STACK : 0)
+	);
+	if (stack_id < 0)
+	{
+		bpf_err("bpf_get_stackid failed: %d", stack_id);
+		return 0;
+	}
+	event->stack_id = stack_id;
+	event->timestamp = bpf_ktime_get_ns();
+	ret = bpf_ringbuf_output(&events, event, sizeof(*event), 0);
+	if (ret < 0)
+	{
+		bpf_err("bpf_ringbuf_output failed: %ld", ret);
+	}
+	return 0;
+}
+
+#if defined(__x86_64__)
 SEC("tracepoint/exceptions/page_fault_kernel")
 int page_fault_kernel(struct tp_page_fault_t *ctx)
 {
@@ -193,3 +249,86 @@ int page_fault_user(struct tp_page_fault_t *ctx)
 
 	return 0;
 }
+#elif defined(__aarch64__)
+#define PSR_MODE_MASK	0xf
+#define PSR_MODE_EL0t	0x0
+
+static bool fault_user_mode(struct pt_regs *regs)
+{
+	return (BPF_CORE_READ(regs, pstate) & PSR_MODE_MASK) == PSR_MODE_EL0t;
+}
+
+SEC("fentry/do_page_fault")
+int BPF_PROG(page_fault_kernel, unsigned long far, unsigned long esr,
+	     struct pt_regs *regs)
+{
+	struct page_fault_t event = {};
+
+	if (fault_user_mode(regs))
+	{
+		return 0; /* kernel-mode faults only (-k) */
+	}
+	event.address = far;                 /* faulting address */
+	event.ip = BPF_CORE_READ(regs, pc);  /* faulting pc, com.h KSTK_EIP 惯例 */
+	event.error_code = esr;
+	return fill_page_fault_event(ctx, &event, false);
+}
+
+SEC("fentry/do_page_fault")
+int BPF_PROG(page_fault_user, unsigned long far, unsigned long esr,
+	     struct pt_regs *regs)
+{
+	struct page_fault_t event = {};
+
+	if (!fault_user_mode(regs))
+	{
+		return 0; /* user-mode faults only (-u) */
+	}
+	event.address = far;
+	event.ip = BPF_CORE_READ(regs, pc);
+	event.error_code = esr;
+	return fill_page_fault_event(ctx, &event, true);
+}
+#elif defined(__loongarch__)
+#define CSR_PRMD_PPLV_MASK	0x3
+#define CSR_PLV_USER		3
+
+static bool fault_user_mode(struct pt_regs *regs)
+{
+	return (BPF_CORE_READ(regs, csr_prmd) & CSR_PRMD_PPLV_MASK) == CSR_PLV_USER;
+}
+
+SEC("kprobe/handle_mm_fault")
+int page_fault_kernel(struct pt_regs *ctx)
+{
+	unsigned long address = PT_REGS_PARM2(ctx);
+	struct pt_regs *regs = (struct pt_regs *)PT_REGS_PARM4(ctx);
+	struct page_fault_t event = {};
+
+	if (fault_user_mode(regs))
+	{
+		return 0; /* kernel-mode faults only (-k) */
+	}
+	event.address = address;
+	event.ip = BPF_CORE_READ(regs, csr_era);  /* 缺页现场 PC */
+	event.error_code = PT_REGS_PARM3(ctx);    /* FAULT_FLAG_* */
+	return fill_page_fault_event(ctx, &event, false);
+}
+
+SEC("kprobe/handle_mm_fault")
+int page_fault_user(struct pt_regs *ctx)
+{
+	unsigned long address = PT_REGS_PARM2(ctx);
+	struct pt_regs *regs = (struct pt_regs *)PT_REGS_PARM4(ctx);
+	struct page_fault_t event = {};
+
+	if (!fault_user_mode(regs))
+	{
+		return 0; /* user-mode faults only (-u) */
+	}
+	event.address = address;
+	event.ip = BPF_CORE_READ(regs, csr_era);
+	event.error_code = PT_REGS_PARM3(ctx);
+	return fill_page_fault_event(ctx, &event, true);
+}
+#endif
