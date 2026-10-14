@@ -7,12 +7,8 @@ MODULE := $(notdir $(CURDIR))
 BUILD_DIR := $(PROJ_ROOT)/build/$(MODULE)
 BPF_SRC = $(shell ls *.bpf.c)
 TARGETs = $(BPF_SRC:%.bpf.c=$(BUILD_DIR)/%.bpf.o)
-BPF_TARGET_ARCH := $(shell uname -m)
-ifeq ($(BPF_TARGET_ARCH), loongarch64)
-	BPF_TARGET_ARCH := loongarch
-endif
-KHEADERS_DIR ?= /lib/modules/$(shell uname -r)/build/include
 CLANG_FLAGS = -g -MMD -Wall -O2 \
+			-D__$(BPF_TARGET_ARCH)__ \
 			-I$(PROJ_ROOT)/include \
 			-I$(PROJ_ROOT)/export/ \
 			-I$(PROJ_ROOT)/build/include \
@@ -31,13 +27,12 @@ $(BUILD_DIR):
 	@mkdir -p $@
 
 $(BUILD_DIR)/%.bpf.o: %.bpf.c $(PROJ_ROOT)/build/include/vmlinux.h $(PROJ_ROOT)/build/include/kconfig.h | $(BUILD_DIR)
-	clang -D__$(BPF_TARGET_ARCH)__ $(CLANG_FLAGS) -target bpf -c $< -o $@
+	clang $(CLANG_FLAGS) -target bpf -c $< -o $@
+	$(BPF_PREPROCESS) $@ $@.tmp
+	mv $@.tmp $@
 
-$(PROJ_ROOT)/build/include/vmlinux.h:
-	make -C $(PROJ_ROOT)/include/ $@
-
-$(PROJ_ROOT)/build/include/kconfig.h:
-	make -C $(PROJ_ROOT)/include/ $@
+$(PROJ_ROOT)/build/include/vmlinux.h $(PROJ_ROOT)/build/include/kconfig.h:
+	$(MAKE) -C $(PROJ_ROOT)/include $@
 
 built-in.a:
 	clang -r $(BUILD_DIR)/*.bpf.o -o $@
